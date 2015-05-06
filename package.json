@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "dependencies": {
+    "object-assign": "^2.0.0",
+    "react": "^0.13.2",
+    "react-router": "^0.13.3"
+  },
+  "devDependencies": {
+    "babel": "^5.2.16",
+    "babel-core": "^5.2.16",
+    "babel-loader": "^5.0.0",
+    "eslint": "^0.20.0",
+    "eslint-plugin-react": "^2.2.0",
+    "webpack": "^1.8.11"
+  },
+  "scripts": {
+    "dist": "NODE_ENV=production webpack && sed -i \"s/?[a-f0-9]\\\\+/?$(sha1sum dist/main.js | cut -f1 -d' ')/\" index.html",
+    "lint": "eslint src || true"
+  }
+}
