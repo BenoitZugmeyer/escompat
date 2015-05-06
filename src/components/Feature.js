@@ -5,7 +5,6 @@ class Feature extends React.Component {
 
   render() {
     let feature = this.props.feature;
-    console.log(feature._data);
     return <div>
       {feature.group} {feature.name}
     </div>;
