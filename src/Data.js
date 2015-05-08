@@ -8,7 +8,7 @@ module.exports = class Data {
 
     for (let data of list) {
       for (let test of data.tests) {
-        this._features.push(new Feature(data.name, test));
+        this._features.push(new Feature(data, test));
       }
     }
   }

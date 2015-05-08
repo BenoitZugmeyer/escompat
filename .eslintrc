@@ -30,6 +30,7 @@ ecmaFeatures:
     classes: true
     defaultParams: true
     destructuring: true
+    templateStrings: true
 
 plugins:
     - "react"
