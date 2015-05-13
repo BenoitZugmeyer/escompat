@@ -1,4 +1,4 @@
-// Downloaded on Wed May  6 21:09:32 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es5.js
+// Downloaded on Wed May 13 10:54:33 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es5.js
 // exports browsers and tests
 
 exports.name = 'ES5';

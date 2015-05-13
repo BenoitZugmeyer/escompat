@@ -1,4 +1,4 @@
-// Downloaded on Wed May  6 21:09:33 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-esintl.js
+// Downloaded on Wed May 13 10:54:36 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-esintl.js
 // exports browsers and tests
 exports.name = 'ES Intl';
 exports.target_file = 'esintl/index.html';
@@ -20,12 +20,10 @@ exports.browsers = {
     short: 'IE 11',
     obsolete: false
   },
-  ie11tp: {
-    full: 'Internet Explorer',
-    short: 'IE<br>Technical<br>Preview',
-    obsolete: false,
-    note_id: 'ie-experimental-flag',
-    note_html: 'Have to be enabled via "Experimental Web Platform Features" flag'
+  edge: {
+    full: 'Microsoft Edge',
+    short: 'Edge',
+    unstable: true
   },
   firefox16: {
     full: 'Firefox',
@@ -169,7 +167,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -197,7 +195,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -231,7 +229,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -259,7 +257,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -288,7 +286,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -317,7 +315,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -351,7 +349,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -387,7 +385,6 @@ exports.tests = [
             "es-419-u-nu-latn-cu-bob", // + Unicode locale extension sequence
             "i-klingon", // grandfathered tag
             "cmn-hans-cn-t-ca-u-ca-x-t-u", // singleton subtags can also be used as private use subtags
-            "enochian-enochian", // language and variant subtags may be the same
             "de-gregory-u-ca-gregory", // variant and extension subtags may be the same
             "aa-a-foo-x-a-foo-bar", // variant subtags can also be used as private use subtags
             "x-en-US-12345", // anything goes in private use tags
@@ -407,8 +404,8 @@ exports.tests = [
       res: {
         ie9: false,
         ie10: false,
-        ie11: false,
-        ie11tp: false,
+        ie11: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -442,7 +439,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -476,7 +473,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -510,7 +507,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -538,7 +535,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -567,7 +564,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -596,7 +593,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -630,7 +627,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -666,7 +663,6 @@ exports.tests = [
             "es-419-u-nu-latn-cu-bob", // + Unicode locale extension sequence
             "i-klingon", // grandfathered tag
             "cmn-hans-cn-t-ca-u-ca-x-t-u", // singleton subtags can also be used as private use subtags
-            "enochian-enochian", // language and variant subtags may be the same
             "de-gregory-u-ca-gregory", // variant and extension subtags may be the same
             "aa-a-foo-x-a-foo-bar", // variant subtags can also be used as private use subtags
             "x-en-US-12345", // anything goes in private use tags
@@ -686,8 +682,8 @@ exports.tests = [
       res: {
         ie9: false,
         ie10: false,
-        ie11: false,
-        ie11tp: false,
+        ie11: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -721,7 +717,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -749,7 +745,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -778,7 +774,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -807,7 +803,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -841,7 +837,7 @@ exports.tests = [
         ie9: false,
         ie10: false,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -877,7 +873,6 @@ exports.tests = [
             "es-419-u-nu-latn-cu-bob", // + Unicode locale extension sequence
             "i-klingon", // grandfathered tag
             "cmn-hans-cn-t-ca-u-ca-x-t-u", // singleton subtags can also be used as private use subtags
-            "enochian-enochian", // language and variant subtags may be the same
             "de-gregory-u-ca-gregory", // variant and extension subtags may be the same
             "aa-a-foo-x-a-foo-bar", // variant subtags can also be used as private use subtags
             "x-en-US-12345", // anything goes in private use tags
@@ -897,8 +892,8 @@ exports.tests = [
       res: {
         ie9: false,
         ie10: false,
-        ie11: false,
-        ie11tp: false,
+        ie11: true,
+        edge: true,
         firefox16: false,
         firefox29: true,
         chrome22: false,
@@ -932,7 +927,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -966,7 +961,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -1000,7 +995,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -1034,7 +1029,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -1068,7 +1063,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -1102,7 +1097,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,
@@ -1136,7 +1131,7 @@ exports.tests = [
         ie9: true,
         ie10: true,
         ie11: true,
-        ie11tp: true,
+        edge: true,
         firefox16: true,
         firefox29: true,
         chrome22: true,

@@ -1,4 +1,4 @@
-// Downloaded on Wed May  6 21:09:33 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-non-standard.js
+// Downloaded on Wed May 13 10:54:37 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-non-standard.js
 // exports browsers and tests
 
 exports.name = 'Non-standard';

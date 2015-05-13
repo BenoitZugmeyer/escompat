@@ -1,4 +1,4 @@
-// Downloaded on Wed May  6 21:09:33 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es7.js
+// Downloaded on Wed May 13 10:54:35 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es7.js
 // exports browsers and tests
 // new browsers should only be added once they have at least a single 'true' result.
 exports.name = 'ES7';
@@ -130,6 +130,11 @@ exports.browsers = {
     note_id: 'experimental-flag',
     note_html: 'Have to be enabled via "Experimental Javascript features" flag'
   },
+  webkit: {
+    full: 'WebKit r184046',
+    short: 'WK',
+    unstable: true,
+  },
   node: {
     full: 'Node 0.12',
     short: 'Node',
@@ -170,12 +175,12 @@ exports.tests = [
     obj.x = 2;
   */},
   res: {
-    chrome33: true,
-    chrome34: true,
-    chrome35: true,
-    chrome37: true,
-    node: true,
-    iojs: true,
+    chrome33:        true,
+    chrome34:        true,
+    chrome35:        true,
+    chrome37:        true,
+    node:            true,
+    iojs:            true,
   }
 },
 {
@@ -190,8 +195,9 @@ exports.tests = [
       && Array(1).includes();
   */},
   res: {
-    babel: true,
-    es7shim: true,
+    babel:           true,
+    es7shim:         true,
+    webkit:          true,
   }
 },
 {

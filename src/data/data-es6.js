@@ -1,4 +1,4 @@
-// Downloaded on Wed May  6 21:09:32 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es6.js
+// Downloaded on Wed May 13 10:54:34 UTC 2015 from https://raw.githubusercontent.com/kangax/compat-table/gh-pages/data-es6.js
 // exports browsers and tests
 
 Object.assign = require('object-assign');
@@ -33,7 +33,7 @@ exports.browsers = {
     platformtype: 'compiler',
   },
   closure: {
-    full: 'Closure Compiler v20141120',
+    full: 'Closure Compiler v20150505',
     short: 'Closure',
     obsolete: false,
     platformtype: 'compiler',
@@ -298,7 +298,7 @@ exports.browsers = {
     obsolete: false
   },
   webkit: {
-    full: 'WebKit r183383',
+    full: 'WebKit r184046',
     short: 'WK',
     unstable: true,
   },
@@ -335,7 +335,7 @@ exports.browsers = {
     note_html: 'Flagged features have to be enabled via <code>--harmony</code> or <code>--es_staging</code> flag'
   },
   iojs: {
-    full: 'io.js 1.0.3',
+    full: 'io.js 2.0.0',
     short: 'io.js',
     platformtype: 'engine',
     note_id: 'harmony-flag',
@@ -1473,6 +1473,7 @@ exports.tests = [
         jsx:         true,
         ejs:         true,
         edge:        true,
+        webkit:      true,
         chrome41:    { val: flag, note_id: 'strict-required' },
         iojs:        { val: flag, note_id: 'strict-required' },
         firefox39:   { val: true, note_id: 'constructor-required', },
@@ -1556,6 +1557,7 @@ exports.tests = [
       res: {
         tr:          true,
         babel:       true,
+        closure:     true,
         typescript:  true,
         jsx:         true,
         es6tr:       true,
@@ -1722,8 +1724,7 @@ exports.tests = [
         class B {}
         class C extends B {}
         return new C() instanceof B
-          && B.isPrototypeOf(C)
-          && B.prototype.isPrototypeOf(C.prototype);
+          && B.isPrototypeOf(C);
       */},
       res: (temp.extendsRes = {
         es6tr:       {
@@ -1756,8 +1757,7 @@ exports.tests = [
         var B;
         class C extends (B = class {}) {}
         return new C() instanceof B
-          && B.isPrototypeOf(C)
-          && B.prototype.isPrototypeOf(C.prototype);
+          && B.isPrototypeOf(C);
       */},
       res: {
         es6tr:       { val: false, note_id: 'compiler-proto' },
@@ -1781,9 +1781,7 @@ exports.tests = [
         class C extends null {
           constructor() { return Object.create(null); }
         }
-        var c = new C();
-        return !(c instanceof Object)
-          && Function.prototype.isPrototypeOf(C)
+        return Function.prototype.isPrototypeOf(C)
           && Object.getPrototypeOf(C.prototype) === null;
       */},
       res: {
@@ -2304,6 +2302,7 @@ exports.tests = [
       res: {
         tr:          true,
         babel:       true,
+        closure:     true,
         typescript:  temp.typescriptFallthrough,
         es6tr:       { val: true, note_id: 'compiler-iterable' },
         ejs:         true,
@@ -2328,6 +2327,7 @@ exports.tests = [
       res: {
         tr:          true,
         babel:       true,
+        closure:     true,
         typescript:  temp.typescriptFallthrough,
         es6tr:       { val: true, note_id: 'compiler-iterable' },
         edge:        true,
@@ -2686,6 +2686,7 @@ exports.tests = [
       res: {
         tr:          true,
         babel:       true,
+        closure:     true,
         firefox36:   true,
         chrome35:    flag,
         chrome39:    true,
@@ -4959,7 +4960,9 @@ exports.tests = [
         } catch(e) {}
         return true;
       */},
-      res: temp.destructuringResults,
+      res: Object.assign({}, temp.destructuringResults, {
+        closure:      false,
+      }),
     },
     'computed properties': {
       exec: function(){/*
@@ -5167,7 +5170,8 @@ exports.tests = [
         }({}));
       */},
       res: {
-        babel: true
+        babel:       true,
+        closure:     true,
       },
     },
     'defaults in parameters, new Function() support': {
@@ -6100,6 +6104,7 @@ exports.tests = [
         ejs:         true,
         closure:     true,
         edge:        true,
+        webkit:      true,
         chrome44:    flag,
       }
     },
@@ -6111,6 +6116,7 @@ exports.tests = [
       res: {
         edge:        true,
         chrome44:    flag,
+        webkit:      true,
       }
     },
   }
@@ -6143,9 +6149,7 @@ exports.tests = [
         }();
 
         try {
-          (function() {
-            new.target = function(){};
-          }());
+          Function("new.target = function(){};");
         } catch(e) {
           return passed;
         }
@@ -6416,6 +6420,7 @@ exports.tests = [
       res: {
         tr:          true,
         babel:       true,
+        closure:     true,
         typescript:  temp.typescriptFallthrough,
         edge:        true,
         firefox36:   true,
@@ -7313,6 +7318,19 @@ exports.tests = [
         typescript:  temp.typescriptFallthrough
       },
     },
+    'correct prototype chain': {
+      exec: function () {/*
+        class C extends Array {}
+        var c = new C();
+        return c instanceof C && c instanceof Array && Object.getPrototypeOf(C) === Array;
+      */},
+      res: {
+        babel:       { val: false, note_id: 'compiler-proto' },
+        iojs:        { val: flag, note_id: 'strict-required' },
+        chrome44:    { val: flag, note_id: 'strict-required' },
+        typescript:  temp.typescriptFallthrough
+      },
+    },
     'Array.prototype.slice': {
       exec: function () {/*
         class C extends Array {}
@@ -7369,6 +7387,19 @@ exports.tests = [
         webkit:      true,
       },
     },
+    'correct prototype chain': {
+      exec: function () {/*
+        class R extends RegExp {}
+        var r = new R("baz","g");
+        return r instanceof R && r instanceof RegExp && Object.getPrototypeOf(R) === RegExp;
+      */},
+      res: {
+        babel:       { val: false, note_id: 'compiler-proto' },
+        iojs:        { val: flag, note_id: 'strict-required' },
+        chrome44:    { val: flag, note_id: 'strict-required' },
+        typescript:  temp.typescriptFallthrough
+      },
+    },
     'RegExp.prototype.exec': {
       exec: function () {/*
         class R extends RegExp {}
@@ -7413,6 +7444,17 @@ exports.tests = [
         babel:       true,
         typescript:  temp.typescriptFallthrough,
         chrome44:    { val: flag, note_id: 'strict-required' },
+      },
+    },
+    'correct prototype chain': {
+      exec: function () {/*
+        class C extends Function {}
+        var c = new C("return 'foo';");
+        return c instanceof C && c instanceof Function && Object.getPrototypeOf(C) === Function;
+      */},
+      res: {
+        babel:       { val: false, note_id: 'compiler-proto' },
+        typescript:  temp.typescriptFallthrough
       },
     },
     'can be used with "new"': {
@@ -7499,6 +7541,17 @@ exports.tests = [
       res: {
         babel:       { val: false, note_id: 'compiler-proto' },
         typescript:  temp.typescriptFallthrough,
+      },
+    },
+    'correct prototype chain': {
+      exec: function () {/*
+        class C extends Promise {}
+        var c = new C(function(resolve, reject) { resolve("foo"); });
+        return c instanceof C && c instanceof Promise && Object.getPrototypeOf(C) === Promise;
+      */},
+      res: {
+        babel:       { val: false, note_id: 'compiler-proto' },
+        typescript:  temp.typescriptFallthrough
       },
     },
     'Promise.all': {
