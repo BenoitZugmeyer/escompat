@@ -1,8 +1,9 @@
 let React = require("react");
 let TestClass = require("../Test");
 let TestResults = require("./TestResults");
+let Component = require("../Component");
 
-class Test extends React.Component {
+class Test extends Component {
 
   render() {
     let test = this.props.test;

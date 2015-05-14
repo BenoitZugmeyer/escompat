@@ -1,6 +1,7 @@
 let React = require("react");
+let Component = require("../Component");
 
-class TestResults extends React.Component {
+class TestResults extends Component {
 
   render() {
     let results = this.props.results;

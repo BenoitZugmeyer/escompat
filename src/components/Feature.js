@@ -1,8 +1,9 @@
 let React = require("react");
 let FeatureClass = require("../Feature");
 let Test = require("./Test");
+let Component = require("../Component");
 
-class Feature extends React.Component {
+class Feature extends Component {
 
   render() {
     let feature = this.props.feature;
