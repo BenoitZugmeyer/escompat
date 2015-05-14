@@ -1,15 +1,35 @@
-var path = require("path");
-var webpack = require("webpack");
+"use strict";
+let path = require("path");
+let webpack = require("webpack");
 
-var plugins = [];
-
-if (process.env.NODE_ENV === "production") {
-  plugins.push(
+let config = {
+  context: path.resolve(__dirname, "src"),
+  entry: ["./main"],
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "main.js",
+    publicPath: "/dist/"
+  },
+  plugins: [
     new webpack.DefinePlugin({
       "process.env": {
-        NODE_ENV: JSON.stringify("production")
-      }
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV || "")
+      },
     }),
+  ],
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules|src\/data\//,
+        loaders: ["babel-loader"],
+      }
+    ],
+  }
+};
+
+if (process.env.NODE_ENV === "production") {
+  config.plugins.push(
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -18,21 +38,4 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 
-module.exports = {
-    context: path.resolve(__dirname, "src"),
-    entry: "./main",
-    output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "main.js",
-    },
-    plugins: plugins,
-    module: {
-      loaders: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules|src\/data\//,
-          loader: "babel-loader",
-        }
-      ],
-    }
-};
+module.exports = config;
