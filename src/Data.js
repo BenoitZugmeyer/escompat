@@ -12,6 +12,10 @@ module.exports = class Data {
         let browser = data.browsers[browserId];
         browser.id = browserId;
         browser.shortId = browserIdRe.exec(browserId)[1];
+        browser.short = browser.short
+          .replace(/-<.+?>/g, "")
+          .replace(/<.+?>|&nbsp;/g, " ")
+          .replace(/&lt;/g, "<");
         return browser;
       });
       for (let test of data.tests) {
