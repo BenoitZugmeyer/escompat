@@ -13,6 +13,10 @@ class Test {
     return Boolean(this._data.main);
   }
 
+  get rawResults() {
+    return this._data.res;
+  }
+
   get results() {
     let result = [];
     let browsers = this._feature.browsers;
