@@ -15,3 +15,8 @@ let Main = require("./components/Main");
 
 
 React.render(<Main data={data} />, document.body);
+
+if (process.env.NODE_ENV !== "production") {
+  window.React = React;
+  window.Perf = require("react/lib/ReactDefaultPerf");
+}
