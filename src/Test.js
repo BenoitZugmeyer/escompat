@@ -18,16 +18,10 @@ class Test {
   }
 
   get results() {
-    let result = [];
-    let browsers = this._feature.browsers;
-    for (let browserId in browsers) {
-      let browser = browsers[browserId];
-      result.push({
+    return this._feature.browsers.map(browser => ({
         browser,
-        pass: this._data.res[browserId] || false,
-      });
-    }
-    return result;
+        pass: this._data.res[browser.id] || false,
+      }));
   }
 
 }

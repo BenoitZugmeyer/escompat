@@ -6,7 +6,14 @@ module.exports = class Data {
   constructor(list) {
     this._features = [];
 
+    let browserIdRe = /^(.*?)([_\d]+(?:dev)?)?$/;
     for (let data of list) {
+      data.browsers = Object.keys(data.browsers).map(browserId => {
+        let browser = data.browsers[browserId];
+        browser.id = browserId;
+        browser.shortId = browserIdRe.exec(browserId)[1];
+        return browser;
+      });
       for (let test of data.tests) {
         this._features.push(new Feature(data, test));
       }

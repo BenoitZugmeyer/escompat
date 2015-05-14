@@ -8,6 +8,7 @@ rules:
     strict: 0
     curly: [2, "multi-line"]
     no-constant-condition: 0
+    no-loop-func: 0
 
     react/jsx-boolean-value: 1
     react/jsx-quotes: 1
