@@ -4,8 +4,9 @@ let Feature = require("./Feature");
 class SearchResults extends React.Component {
 
   render() {
+    let results = this.props.results.slice(0, 20);
     return <div>
-      {this.props.results.map(result => <Feature key={result.name} feature={result} />)}
+      {results.map(result => <Feature key={result.name} feature={result} />)}
     </div>;
   }
 
