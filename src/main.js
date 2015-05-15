@@ -1,20 +1,21 @@
 
 let React = require("react");
-let Data = require("./Data");
-
-let data = new Data([
-  require("./data/data-es5"),
-  require("./data/data-es6"),
-  require("./data/data-es7"),
-  require("./data/data-esintl"),
-  require("./data/data-non-standard"),
-]);
-
+let Router = require("react-router");
+let { Route, DefaultRoute } = Router;
+let Search = require("./components/Search");
 
 let Main = require("./components/Main");
 
+let routes = (
+  <Route name="app" path="/" handler={Main}>
+    <DefaultRoute handler={Search}/>
+    <Route name="search" path="search/:query" handler={Search}/>
+  </Route>
+);
 
-React.render(<Main data={data} />, document.body);
+Router.run(routes, function (Handler) {
+  React.render(<Handler />, document.body);
+});
 
 if (process.env.NODE_ENV !== "production") {
   window.React = React;

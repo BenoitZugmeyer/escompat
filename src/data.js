@@ -1,7 +1,8 @@
+
 let Feature = require("./Feature");
 let { Query } = require("./query");
 
-module.exports = class Data {
+class Data {
 
   constructor(list) {
     this._features = [];
@@ -29,7 +30,7 @@ module.exports = class Data {
   }
 
   search(query) {
-    query = query.trim();
+    query = query && query.trim();
     if (!query) return this.all;
 
     query = new Query(query, {
@@ -55,4 +56,12 @@ module.exports = class Data {
     return result;
   }
 
-};
+}
+
+module.exports = new Data([
+  require("./data/data-es5"),
+  require("./data/data-es6"),
+  require("./data/data-es7"),
+  require("./data/data-esintl"),
+  require("./data/data-non-standard"),
+]);

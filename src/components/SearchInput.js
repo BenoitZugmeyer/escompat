@@ -8,6 +8,7 @@ class SearchInput extends React.Component {
     return <input
         type="text"
         placeholder="Search..."
+        defaultValue={this.props.initialValue}
         onChange={onChange}
       />;
   }
@@ -16,6 +17,7 @@ class SearchInput extends React.Component {
 
 SearchInput.propTypes = {
   onChange: React.PropTypes.func,
+  initialValue: React.PropTypes.string,
 };
 
 module.exports = SearchInput;

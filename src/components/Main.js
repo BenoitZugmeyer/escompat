@@ -1,36 +1,18 @@
 let React = require("react");
+let { RouteHandler } = require("react-router");
 
-let Data = require("../Data");
-let SearchInput = require("./SearchInput");
-let SearchResults = require("./SearchResults");
+let Component = require("../Component");
 
-class Main extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchResults: props.data.all,
-    };
-  }
+class Main extends Component {
 
   render() {
     return (
       <div>
-        <SearchInput onChange={value => this.search(value)} />
-        <SearchResults results={this.state.searchResults} />
+        <RouteHandler />
       </div>
     );
-
-  }
-
-  search(query) {
-    this.setState({ searchResults: this.props.data.search(query) });
   }
 
 }
-
-Main.propTypes = {
-  data: React.PropTypes.instanceOf(Data).isRequired,
-};
 
 module.exports = Main;
