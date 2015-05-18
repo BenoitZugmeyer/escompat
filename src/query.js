@@ -130,9 +130,10 @@ function normalize(query) {
       break;
 
     case "Operator":
-      transitionToAndWithoutOperator();
 
       if (part.operator === "not") {
+        transitionToAndWithoutOperator();
+
         if (group.operator === "not") {
           up();
           group.children.pop();
