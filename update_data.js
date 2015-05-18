@@ -1,14 +1,103 @@
+"use strict";
+let https = require("https");
+let url = require("url");
+let vm = require("vm");
+let assign = require("object-assign");
 
-let Feature = require("./Feature");
-let { Query } = require("./query");
+let baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
+let files = [
+    "data-es5.js",
+    "data-es6.js",
+    "data-es7.js",
+    "data-esintl.js",
+    "data-non-standard.js",
+];
+
+function read(response) {
+  return new Promise(function (resolve, reject) {
+    let body = [];
+    response.on("error", reject);
+    response.on("data", function (data) { body.push(data); });
+    response.on("end", function () { resolve(Buffer.concat(body)); });
+  });
+}
+
+function get(fileURL) {
+  return new Promise(function (resolve, reject) {
+    let request = https.request(fileURL, resolve);
+    request.on("error", reject);
+    request.end();
+  });
+}
+
+function evalFile(body) {
+  let module = { exports: {} };
+  let sandbox = {
+    exports: module.exports,
+    module: module,
+    require: function (name) {
+      if (name !== "object-assign") {
+        throw new Error("Tried to import " + name + ". No can do.");
+      }
+      return assign;
+    },
+  };
+
+  vm.runInNewContext(body, sandbox);
+  return module.exports;
+}
+
+function formatFile(data) {
+  data.versions = [];
+  for (let browserId in data.browsers) {
+    let browser = data.browsers[browserId];
+    browser.id = browserId;
+    browser.short = cleanShort(browser.short);
+
+    for (let version of getVersions(browser.short)) {
+      data.versions.push(assign({
+        obsolete: browser.obsolete,
+        id: browserId,
+      }, version));
+    }
+  }
+
+  delete data.browsers;
+
+  let features = data.tests.map(function (test) {
+    return formatFeature(data, test);
+  });
+
+  return features;
+}
+
+function downloadFile(file) {
+  let fileURL = url.resolve(baseURL, file);
+  return get(fileURL).then(read).then(evalFile).then(formatFile);
+}
+
+
+
 
 let runtimes = {
-  chakra: {},
-  jsc: {},
-  nitro: {},
-  other: {},
-  spiderMonkey: {},
-  v8: {},
+  chakra: {
+    name: "Chakra",
+  },
+  jsc: {
+    name: "JavaScript Core",
+  },
+  nitro: {
+    name: "Nitro",
+  },
+  other: {
+    name: "Other",
+  },
+  spiderMonkey: {
+    name: "SpiderMonkey",
+  },
+  v8: {
+    name: "V8",
+  },
 };
 
 let projects = {
@@ -237,135 +326,119 @@ function cleanShort(short) {
     .trim();
 }
 
-class Data {
+let compressJSON = require("./compress-json");
 
-  constructor(list) {
-    this._features = [];
 
-    // for (let data of list) {
-    for (let i = 0; i < list.length; i++) {
-      let data = list[i];
+Promise.all(files.map(downloadFile)).then(function (args) {
+  console.log(compressJSON(args));
+}).catch(function (e) {
+  console.log("Error: " + e.stack);
+});
 
-      data.versions = [];
-      for (let browserId in data.browsers) {
-        let browser = data.browsers[browserId];
-        browser.id = browserId;
-        browser.short = cleanShort(browser.short);
+function formatFeature(group, data) {
+  let tests = [];
+  if (data.res) {
+    tests.push({
+      name: data.name,
+      main: true,
+      exec: data.exec,
+      res: data.res,
+    });
+  }
 
-        // for (let version of getVersions(browser.short)) {
-        let versions = getVersions(browser.short);
-        for (let j = 0; j < versions.length; j++) {
-          data.versions.push(Object.assign({
-            obsolete: browser.obsolete,
-            id: browserId,
-          }, versions[j]));
-        }
+  if (data.subtests) {
+    for (let name in data.subtests) {
+      tests.push({
+        name,
+        main: false,
+        exec: data.subtests[name].exec,
+        res: data.subtests[name].res,
+      });
+    }
+  }
+
+  return {
+    group,
+    data,
+    tests,
+    //supports: computeSupport(group.versions, tests),
+  };
+}
+
+function computeSupport(versions, tests) {
+  let result = versions.map(function (version) {
+    return {
+      version,
+      score: 0,
+      optionalScore: 0,
+      tested: true,
+    };
+  });
+
+  for (let test of tests) {
+    let previousPass;
+    let previousPassProject;
+
+    for (let support of result) {
+      let pass = test.res[support.version.id];
+
+      if (pass === undefined && previousPassProject === support.version.project) {
+        pass = previousPass;
+      }
+      else {
+        previousPass = pass;
+        previousPassProject = support.version.project;
       }
 
-      delete data.browsers;
+      if (pass && typeof pass === "object") pass = pass.val;
 
-      // for (let test of data.tests) {
-      for (let j = 0; j < data.tests.length; j++) {
-        this._features.push(new Feature(data, data.tests[j]));
+      if (pass === true) {
+        support.score += 1;
+        support.optionalScore += 1;
+      }
+      else if (pass === null) {
+        support.tested = false;
+      }
+      else if (typeof pass === "string") {
+        support.directlyUsable = false;
+        support.optionalScore += 1;
       }
     }
   }
 
-  get all() {
-    return this._features.slice();
+  for (let support of result) {
+    support.score /= tests.length;
+    support.optionalScore /= tests.length;
   }
 
-  search(query) {
-    query = query && query.trim();
-    if (!query) return this.all;
+  function firstNumbers(version) {
+    return /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
+  }
 
-    query = new Query(query, {
-      fields: {
-        browser: { matchSpace: false },
-      },
-      defaultField: "name",
-    });
-
-    let scores = new Map();
-    let result = [];
-    this._features.forEach((feature, i) => {
-      let score = feature.match(query);
-      if (score) {
-        score -= i / 1e5;  // to have a stable sort
-        scores.set(feature, score);
-        result.push(feature);
+  function compareVersions(av, bv) {
+    av = firstNumbers(av);
+    bv = firstNumbers(bv);
+    let length = Math.max(av.length, bv.length);
+    for (let i = 0; i < length; i++) {
+      let a = av[i] || 0;
+      let b = bv[i] || 0;
+      if (a !== b) {
+        return a - b;
       }
-    });
-
-    result.sort((a, b) => scores.get(b) - scores.get(a));
-
-    return result;
+    }
+    return 0;
   }
 
-}
+  result.sort(function (a, b) {
+    let av = a.version;
+    let bv = b.version;
 
-console.profile("foo");
-module.exports = new Data([
-  require("./data/data-es5"),
-  require("./data/data-es6"),
-  require("./data/data-es7"),
-  require("./data/data-esintl"),
-  require("./data/data-non-standard"),
-]);
-console.profileEnd("foo");
+    if (av.project.name !== bv.project.name) {
+      return av.project.name > bv.project.name ? 1 : -1;
+    }
 
+    return compareVersions(a.version.version, b.version.version);
+  });
 
-if (process.env.NODE_ENV === "tests") {
-  let assert = require("assert");
-
-  assert.deepEqual(getVersions("CH 10"), [
-    { project: projects.chrome, version: "10" }
-  ]);
-
-  assert.deepEqual(getVersions("CH 10, OP 15"), [
-    { project: projects.chrome, version: "10" },
-    { project: projects.opera, version: "15" },
-  ]);
-
-  assert.deepEqual(getVersions("CH 11+, OP 15+"), [
-    { project: projects.chrome, version: "11+" },
-    { project: projects.opera, version: "15+" },
-  ]);
-
-  assert.deepEqual(getVersions("WebKit"), [
-    { project: projects.webkit, version: null },
-  ]);
-
-  assert.deepEqual(getVersions("SF 7.1, SF 8"), [
-    { project: projects.safari, version: "7.1" },
-    { project: projects.safari, version: "8" },
-  ]);
-
-  assert.deepEqual(getVersions("OP 10.50-11.10"), [
-    { project: projects.opera, version: "10.50-11.10" },
-  ]);
-
-  assert.deepEqual(getVersions("FF 3.5, 3.6"), [
-    { project: projects.firefox, version: "3.5" },
-    { project: projects.firefox, version: "3.6" },
-  ]);
-
-  assert.deepEqual(getVersions("Node .12"), [
-    { project: projects.node, version: ".12" },
-  ]);
-
-  assert.deepEqual(getVersions("iOS7"), [
-    { project: projects.ios, version: "7" },
-  ]);
-
-  assert.deepEqual(getVersions("iOS 7/8"), [
-    { project: projects.ios, version: "7" },
-    { project: projects.ios, version: "8" },
-  ]);
-
-  assert.deepEqual(getVersions("es5-shim"), [
-    { project: projects.es5shim, version: null },
-  ]);
-
-  console.log("data tests ok");
+  return result;
 }

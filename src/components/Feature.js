@@ -25,7 +25,7 @@ class Feature extends Component {
     let previousSupport;
     for (let support of feature.supports) {
       if (!previousSupport ||
-          previousSupport.browser.shortId !== support.browser.shortId ||
+          previousSupport.version.project !== support.version.project ||
           previousSupport.score !== support.score ||
           previousSupport.optionalScore !== support.optionalScore) {
         supports.push(support);
@@ -54,8 +54,8 @@ class Feature extends Component {
       backgroundColor: mixColors(supported, notSupported, support.optionalScore),
     };
 
-    return <li key={support.browser.id} style={style}>
-      {support.browser.short}: {percent(support.score)}
+    return <li key={support.version.id} style={style}>
+      {support.version.project.name} {support.version.version}: {percent(support.score)}
       &nbsp;
       {support.score !== support.optionalScore && <span style={optionalStyle}>({percent(support.optionalScore)})</span>}
     </li>;

@@ -26,12 +26,14 @@ module.exports = class Feature {
       }
     }
 
+    this._supports = this._computeSupports();
+
     this._matchData = {
       name: this._data.name,
       group: this._group.name,
       browser: this.supports
         .filter(s => s.score)
-        .map(s => s.browser.full.split(",").map(b => b.replace(/\s+/g, "")).join(" "))
+        .map(s => s.version.name)
         .join(" "),
     };
   }
@@ -52,13 +54,17 @@ module.exports = class Feature {
     return this._data.name;
   }
 
-  get browsers() {
-    return this._group.browsers;
+  get versions() {
+    return this._group.versions;
   }
 
   get supports() {
-    let result = this.browsers.map(browser => ({
-      browser,
+    return this._supports;
+  }
+
+  _computeSupports() {
+    let result = this.versions.map(version => ({
+      version,
       score: 0,
       optionalScore: 0,
       tested: true,
@@ -67,39 +73,65 @@ module.exports = class Feature {
     for (let test of this._tests) {
       let rawResults = test.rawResults;
       let previousPass;
-      let previousPassShortId;
+      let previousPassProject;
 
-      result.forEach(r => {
-        let pass = rawResults[r.browser.id];
+      for (let support of result) {
+        let pass = rawResults[support.version.id];
 
-        if (pass === undefined && previousPassShortId === r.browser.shortId) {
+        if (pass === undefined && previousPassProject === support.version.project) {
           pass = previousPass;
         }
         else {
           previousPass = pass;
-          previousPassShortId = r.browser.shortId;
+          previousPassProject = support.version.project;
         }
 
         if (pass && typeof pass === "object") pass = pass.val;
 
         if (pass === true) {
-          r.score += 1;
-          r.optionalScore += 1;
+          support.score += 1;
+          support.optionalScore += 1;
         }
         else if (pass === null) {
-          r.tested = false;
+          support.tested = false;
         }
         else if (typeof pass === "string") {
-          r.directlyUsable = false;
-          r.optionalScore += 1;
+          support.directlyUsable = false;
+          support.optionalScore += 1;
         }
-      });
+      }
     }
 
-    for (let r of result) {
-      r.score /= this._tests.length;
-      r.optionalScore /= this._tests.length;
+    for (let support of result) {
+      support.score /= this._tests.length;
+      support.optionalScore /= this._tests.length;
     }
+
+    let firstNumbers = version => /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
+    let compareVersions = (av, bv) => {
+      av = firstNumbers(av);
+      bv = firstNumbers(bv);
+      let length = Math.max(av.length, bv.length);
+      for (let i = 0; i < length; i++) {
+        let a = av[i] || 0;
+        let b = bv[i] || 0;
+        if (a !== b) {
+          return a - b;
+        }
+      }
+      return 0;
+    };
+
+    result.sort((a, b) => {
+      let av = a.version;
+      let bv = b.version;
+
+      if (av.project.name !== bv.project.name) {
+        return av.project.name > bv.project.name ? 1 : -1;
+      }
+
+      return compareVersions(a.version.version, b.version.version);
+    });
 
     return result;
   }
