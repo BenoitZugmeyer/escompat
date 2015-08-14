@@ -262,6 +262,7 @@ let projects = {
     name: "TypeScript",
     type: "transpiler",
     link: "http://www.typescriptlang.org/",
+    short: "TypeScript + core-js",
   },
 
   webkit: {
