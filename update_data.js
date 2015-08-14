@@ -1,11 +1,11 @@
+/*eslint-env node*/
 "use strict";
-let https = require("https");
-let url = require("url");
-let vm = require("vm");
-let assign = require("object-assign");
+import https from "https";
+import url from "url";
+import vm from "vm";
 
-let baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
-let files = [
+const baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
+const files = [
     "data-es5.js",
     "data-es6.js",
     "data-es7.js",
@@ -14,16 +14,16 @@ let files = [
 ];
 
 function read(response) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     let body = [];
     response.on("error", reject);
-    response.on("data", function (data) { body.push(data); });
-    response.on("end", function () { resolve(Buffer.concat(body)); });
+    response.on("data", (data) => body.push(data));
+    response.on("end", () => resolve(Buffer.concat(body)));
   });
 }
 
 function get(fileURL) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     let request = https.request(fileURL, resolve);
     request.on("error", reject);
     request.end();
@@ -39,7 +39,7 @@ function evalFile(body) {
       if (name !== "object-assign") {
         throw new Error("Tried to import " + name + ". No can do.");
       }
-      return assign;
+      return Object.assign;
     },
   };
 
@@ -55,7 +55,7 @@ function formatFile(data) {
     browser.short = cleanShort(browser.short);
 
     for (let version of getVersions(browser.short)) {
-      data.versions.push(assign({
+      data.versions.push(Object.assign({
         obsolete: browser.obsolete,
         id: browserId,
       }, version));
