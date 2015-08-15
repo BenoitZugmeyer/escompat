@@ -1,23 +1,23 @@
-let React = require("react");
+import React from "react";
 
-class SearchInput extends React.Component {
+export default class SearchInput extends React.Component {
+
+  static propTypes = {
+    initialValue: React.PropTypes.string,
+    onChange: React.PropTypes.func,
+  };
 
   render() {
-    let onChange = this.props.onChange && (event => this.props.onChange(event.target.value));
+    let onChange = this.props.onChange && ((event) => this.props.onChange(event.target.value));
 
-    return <input
+    return (
+      <input
         type="text"
         placeholder="Search..."
         defaultValue={this.props.initialValue}
         onChange={onChange}
-      />;
+      />
+    );
   }
 
 }
-
-SearchInput.propTypes = {
-  onChange: React.PropTypes.func,
-  initialValue: React.PropTypes.string,
-};
-
-module.exports = SearchInput;

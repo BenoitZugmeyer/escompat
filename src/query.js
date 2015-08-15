@@ -157,7 +157,7 @@ function normalize(query) {
             transitionToAnd();
           }
           else {
-            console.log("ERROR?");
+            throw new Error(`Should not pass here`);
           }
         }
 
@@ -245,7 +245,7 @@ if (process.env.NODE_ENV === "tests") {
 
   let assert = require("assert");
 
-  let format = ast => {
+  let format = (ast) => {
     if (Array.isArray(ast)) return ast.map(format).join(" ");
 
     switch (ast.type) {

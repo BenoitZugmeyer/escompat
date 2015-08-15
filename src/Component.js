@@ -1,4 +1,4 @@
-let React = require("react");
+import React from "react";
 
 function fastShallowCompare(a, b) {
   for (let key in a) {
@@ -12,7 +12,7 @@ function fastShallowCompare(a, b) {
   return true;
 }
 
-class Component extends React.Component {
+export default class Component extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       !fastShallowCompare(this.props, nextProps) ||
@@ -20,5 +20,3 @@ class Component extends React.Component {
     );
   }
 }
-
-module.exports = Component;

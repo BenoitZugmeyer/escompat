@@ -1,6 +1,6 @@
-let Test = require("./Test");
+import Test from "./Test"
 
-module.exports = class Feature {
+export default class Feature {
 
   constructor(group, data) {
     this._group = group;
@@ -32,8 +32,8 @@ module.exports = class Feature {
       name: this._data.name,
       group: this._group.name,
       browser: this.supports
-        .filter(s => s.score)
-        .map(s => s.version.name)
+        .filter((s) => s.score)
+        .map((s) => s.version.name)
         .join(" "),
     };
   }
@@ -63,7 +63,7 @@ module.exports = class Feature {
   }
 
   _computeSupports() {
-    let result = this.versions.map(version => ({
+    let result = this.versions.map((version) => ({
       version,
       score: 0,
       optionalScore: 0,
@@ -107,7 +107,7 @@ module.exports = class Feature {
       support.optionalScore /= this._tests.length;
     }
 
-    let firstNumbers = version => /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
+    let firstNumbers = (version) => /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
     let compareVersions = (av, bv) => {
       av = firstNumbers(av);
       bv = firstNumbers(bv);
@@ -136,4 +136,4 @@ module.exports = class Feature {
     return result;
   }
 
-};
+}

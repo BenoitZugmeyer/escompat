@@ -1,7 +1,11 @@
-let React = require("react");
-let Component = require("../Component");
+import React from "react";
+import Component from "../Component";
 
-class TestResults extends Component {
+export default class TestResults extends Component {
+
+  static propTypes = {
+    results: React.PropTypes.array.isRequired,
+  };
 
   render() {
     let results = this.props.results;
@@ -15,23 +19,23 @@ class TestResults extends Component {
     let style = {
       display: "flex",
     };
-    return <div style={style}>
-      {results.map(result => {
-        if (result.browser.obsolete) return null;
-        let shortName = { __html: result.browser.short };
-        return <div
-          key={result.browser.short}
-          style={result.pass ? resultPassStyle : resultStyle}
-          dangerouslySetInnerHTML={shortName}>
-        </div>;
-      })}
-      </div>;
+    /*eslint-disable react/no-danger*/
+    return (
+      <div style={style}>
+        {results.map((result) => {
+          if (result.browser.obsolete) return null;
+          let shortName = { __html: result.browser.short };
+          return (
+            <div
+              key={result.browser.short}
+              style={result.pass ? resultPassStyle : resultStyle}
+              dangerouslySetInnerHTML={shortName}>
+            </div>
+          );
+        })}
+      </div>
+    );
+    /*eslint-enable react/no-danger*/
   }
 
 }
-
-TestResults.propTypes = {
-  results: React.PropTypes.array.isRequired,
-};
-
-module.exports = TestResults;

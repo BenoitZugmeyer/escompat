@@ -1,6 +1,5 @@
 import data from "./data";
 import Query from "./query";
-window.data = data;
 
 export default function search(query) {
   query = query && query.trim();

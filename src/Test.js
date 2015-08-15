@@ -1,4 +1,4 @@
-class Test {
+export default class Test {
 
   constructor(feature, data) {
     this._feature = feature;
@@ -18,12 +18,10 @@ class Test {
   }
 
   get results() {
-    return this._feature.browsers.map(browser => ({
+    return this._feature.browsers.map((browser) => ({
         browser,
         pass: this._data.res[browser.id] || false,
       }));
   }
 
 }
-
-module.exports = Test;

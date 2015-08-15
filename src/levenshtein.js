@@ -1,4 +1,4 @@
-module.exports = (m, n) => {
+export default function levenshtein(m, n) {
 
   if (m === n) return 0;
   if (m === "") return n.length;
@@ -29,13 +29,13 @@ module.exports = (m, n) => {
   }
 
   return current[current.length - 1];
-};
+}
 
 if (process.env.NODE_ENV === "tests") {
   let assert = require("assert");
 
-  assert.equal(module.exports("kitten", "sitting"), 3);
-  assert.equal(module.exports("Saturday", "Sunday"), 3);
+  assert.equal(levenshtein("kitten", "sitting"), 3);
+  assert.equal(levenshtein("Saturday", "Sunday"), 3);
 
   console.log("tests ok");
 }

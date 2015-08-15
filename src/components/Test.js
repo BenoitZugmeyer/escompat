@@ -1,22 +1,24 @@
-let React = require("react");
-let TestClass = require("../Test");
-let TestResults = require("./TestResults");
-let Component = require("../Component");
+import React from "react";
+import TestClass from "../Test";
+import TestResults from "./TestResults";
+import Component from "../Component";
 
-class Test extends Component {
+export default class Test extends Component {
+
+  static propTypes = {
+    test: React.PropTypes.instanceOf(TestClass).isRequired,
+  };
 
   render() {
     let test = this.props.test;
-    return <div onClick={() => console.log(test)}>
+    /*eslint-disable no-console*/
+    return (
+      <div onClick={() => console.log(test)}>
         {!test.main && test.name}
         <TestResults results={test.results} />
-      </div>;
+      </div>
+    );
+    /*eslint-enable no-console*/
   }
 
 }
-
-Test.propTypes = {
-  test: React.PropTypes.instanceOf(TestClass).isRequired,
-};
-
-module.exports = Test;
