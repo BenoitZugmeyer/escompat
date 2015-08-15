@@ -3,6 +3,7 @@
 import https from "https";
 import url from "url";
 import vm from "vm";
+import compress from "./_compress_object";
 
 const baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
 const files = [
@@ -327,11 +328,10 @@ function cleanShort(short) {
     .trim();
 }
 
-let compressJSON = require("./compress-json");
 
 
 Promise.all(files.map(downloadFile)).then(function (args) {
-  console.log(compressJSON(args));
+  console.log(compress(args));
 }).catch(function (e) {
   console.log("Error: " + e.stack);
 });

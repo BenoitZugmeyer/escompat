@@ -1,7 +1,7 @@
 "use strict";
 let webpack = require("webpack");
 let WebpackDevServer = require("webpack-dev-server");
-let config = require("./webpack.config");
+let config = require("../webpack.config");
 
 config.entry.unshift(
   "webpack-dev-server/client?http://0.0.0.0:3000",
