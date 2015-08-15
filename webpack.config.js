@@ -1,12 +1,14 @@
-"use strict";
-let path = require("path");
-let webpack = require("webpack");
+/*eslint-env node*/
+import path from "path";
+import webpack from "webpack";
+
+let getPath = (fullPath) => path.resolve(__dirname, ...fullPath.split("/"));
 
 let config = {
-  context: path.resolve(__dirname, "src"),
+  context: getPath("src"),
   entry: ["./main"],
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: getPath("dist"),
     filename: "main.js",
     publicPath: "/dist/"
   },
@@ -39,4 +41,4 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 
-module.exports = config;
+export default config;
