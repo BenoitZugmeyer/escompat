@@ -1,23 +1,26 @@
 
-let React = require("react");
-let Router = require("react-router");
-let { Route, DefaultRoute } = Router;
-let Search = require("./components/Search");
+import data from "./data";
 
-let Main = require("./components/Main");
+window.data = data;
+// let React = require("react");
+// let Router = require("react-router");
+// let { Route, DefaultRoute } = Router;
+// let Search = require("./components/Search");
 
-let routes = (
-  <Route name="app" path="/" handler={Main}>
-    <DefaultRoute handler={Search}/>
-    <Route name="search" path="search/:query" handler={Search}/>
-  </Route>
-);
+// let Main = require("./components/Main");
 
-Router.run(routes, function (Handler) {
-  React.render(<Handler />, document.body);
-});
+// let routes = (
+//   <Route name="app" path="/" handler={Main}>
+//     <DefaultRoute handler={Search}/>
+//     <Route name="search" path="search/:query" handler={Search}/>
+//   </Route>
+// );
 
-if (process.env.NODE_ENV !== "production") {
-  window.React = React;
-  window.Perf = require("react/lib/ReactDefaultPerf");
-}
+// Router.run(routes, function (Handler) {
+//   React.render(<Handler />, document.body);
+// });
+
+// if (process.env.NODE_ENV !== "production") {
+//   window.React = React;
+//   window.Perf = require("react/lib/ReactDefaultPerf");
+// }

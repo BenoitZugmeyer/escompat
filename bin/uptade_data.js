@@ -1,5 +1,5 @@
 /*eslint-env node*/
-"use strict";
+/*eslint no-console: 0*/
 import https from "https";
 import url from "url";
 import vm from "vm";
@@ -339,6 +339,8 @@ function cleanShort(short) {
 
 
 Promise.all(files.map(downloadFile)).then(function (args) {
+  let data = [];
+  data.push(...args);
   let result = compress(args);
   console.log(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
