@@ -58,6 +58,7 @@ function evalFile(name, body) {
 
 function formatFile(data) {
   data.versions = [];
+
   for (let browserId in data.browsers) {
     let browser = data.browsers[browserId];
     browser.id = browserId;
@@ -71,10 +72,12 @@ function formatFile(data) {
     }
   }
 
-  delete data.browsers;
+  let group = {
+    name: data.name
+  };
 
   let features = data.tests.map(function (test) {
-    return formatFeature(data, test);
+    return formatFeature(group, data, test);
   });
 
   return features;
@@ -340,38 +343,76 @@ function cleanShort(short) {
 
 Promise.all(files.map(downloadFile)).then(function (args) {
   let data = [];
-  data.push(...args);
-  let result = compress(args);
+  for (let arg of args) data.push(...arg);
+  let result = compress(data);
   console.log(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
   console.log(e.stack);
 });
 
-function formatFeature(group, data) {
+function unindent(str) {
+  let indentation = str.match(/^( *)\S/m);
+  if (!indentation) return str;
+  return str.replace(new RegExp(indentation[1], 'g'), '');
+}
+
+function formatFn(fn) {
+  if (typeof fn !== "function") throw Error("fn is not a function");
+  let match = String(fn).match(/^function\s*\(\)\s*\{(?:\s*\/\*)?([^]*?)(?:\*\/)?\s*}$/);
+  if (!match) throw new Error(`Can't parse exec ${fn}`);
+  return unindent(match[1]).trim();
+}
+
+function formatExec(exec) {
+  if (typeof exec === "function") return [{script: formatFn(exec), type: null}];
+  if (Array.isArray(exec)) {
+    return exec.map((exec) => ({
+      script: formatFn(exec.script),
+      type: exec.type || null
+    }));
+  }
+
+  throw new Error(`exec has wrong type`);
+}
+
+function formatRes(res) {
+  if (typeof res !== "object") throw new Error(`res is not an object`);
+  return res;
+}
+
+function formatTest(name, data) {
+  try {
+    return {
+      name,
+      exec: formatExec(data.exec),
+      res: formatRes(data.res),
+    };
+  }
+  catch (e) {
+    throw new Error(`while formating "${name || "main"}" test:\n${e.message}`);
+  }
+}
+
+function formatFeature(group, _, data) {
   let tests = [];
   if (data.res) {
-    tests.push({
-      name: data.name,
-      main: true,
-      exec: data.exec,
-      res: data.res,
-    });
+    try {
+      tests.push(formatTest(null, data));
+    }
+    catch (e) {
+      throw new Error(`while formating feature "${group.name} - ${data.name}":\n${e.message}`);
+    }
   }
 
   if (data.subtests) {
     for (let name in data.subtests) {
-      tests.push({
-        name,
-        main: false,
-        exec: data.subtests[name].exec,
-        res: data.subtests[name].res,
-      });
+      tests.push(formatTest(name, data.subtests[name]));
     }
   }
 
   return {
+    name: data.name,
     group,
-    data,
     tests,
     //supports: computeSupport(group.versions, tests),
   };

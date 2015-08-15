@@ -1,40 +1,40 @@
-let React = require("react");
-let { Navigation } = require("react-router");
+import React from "react";
 
-let data = require("../data");
-let Component = require("../Component");
-let SearchInput = require("./SearchInput");
-let SearchResults = require("./SearchResults");
+import search from "../search";
+import Component from "../Component";
+import SearchInput from "./SearchInput";
+import SearchResults from "./SearchResults";
 
-class Search extends Component {
+export default class Search extends Component {
+
+  static propTypes = {
+    params: React.PropTypes.object.isRequired,
+  };
+
+  static contextTypes = {
+    router: React.PropTypes.func
+  };
 
   constructor(props) {
     super(props);
     this.state = {
-      searchResults: data.search(this.props.params.query),
+      searchResults: search(this.props.params.query),
     };
+  }
+
+  search(query) {
+    this.context.router.replaceWith(query ? "search" : "index", { query });
+    this.setState({ searchResults: search(query) });
   }
 
   render() {
     return (
       <div>
-        <SearchInput initialValue={this.props.params.query} onChange={value => this.search(value)} />
+        <SearchInput initialValue={this.props.params.query} onChange={(value) => this.search(value)} />
         <SearchResults results={this.state.searchResults} />
       </div>
     );
 
   }
 
-  search(query) {
-    this.replaceWith("search", { query });
-    this.setState({ searchResults: data.search(query) });
-  }
-
 }
-
-
-Search.propTypes = {
-  params: React.PropTypes.object.isRequired,
-};
-
-module.exports = Search;

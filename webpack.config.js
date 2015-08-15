@@ -24,7 +24,11 @@ let config = {
       {
         test: /\.js$/,
         exclude: /node_modules|src\/data\.js/,
-        loaders: ["babel-loader"],
+        loader: "babel",
+        query: {
+          stage: 0,
+          cacheDirectory: true,
+        }
       }
     ],
   }

@@ -1,4 +1,4 @@
-let escapeRegExp = require("./escapeRegExp");
+import escapeRegExp from "./escapeRegExp";
 
 function mkFilter(field, filter) {
   if (!filter) {
@@ -25,7 +25,7 @@ function tokenize(query) {
   };
 
   let current = () => query[index];
-  let pop = ch => {
+  let pop = (ch) => {
     let c = current();
     if (!ch || c === ch) {
       next();
@@ -33,9 +33,9 @@ function tokenize(query) {
     }
   };
 
-  let isSpace = ch => ch === " ";
-  let isWordCharacter = ch => ch && !isSpace(ch) && ch !== ":" && ch !== ")" && ch !== "(";
-  let isOperator = op => ["or", "and", "not"].indexOf(op) >= 0;
+  let isSpace = (ch) => ch === " ";
+  let isWordCharacter = (ch) => ch && !isSpace(ch) && ch !== ":" && ch !== ")" && ch !== "(";
+  let isOperator = (op) => ["or", "and", "not"].indexOf(op) >= 0;
 
   let skipSpaces = () => {
     while (isSpace(current())) next();
@@ -229,7 +229,7 @@ function match(query, obj, options) {
   return 1000 - m[0].length - obj[field].length / 1000;
 }
 
-class Query {
+export default class Query {
   constructor(query, options) {
     this._parsed = normalize(tokenize(query));
     compileFilters(this._parsed, options);
@@ -239,8 +239,6 @@ class Query {
     return match(this._parsed, obj);
   }
 }
-
-exports.Query = Query;
 
 
 if (process.env.NODE_ENV === "tests") {

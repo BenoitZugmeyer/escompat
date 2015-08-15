@@ -1,9 +1,8 @@
-let React = require("react");
-let { RouteHandler } = require("react-router");
+import  React from "react";
+import { RouteHandler } from "react-router";
+import Component from "../Component";
 
-let Component = require("../Component");
-
-class Main extends Component {
+export default class Main extends Component {
 
   render() {
     return (
@@ -14,5 +13,3 @@ class Main extends Component {
   }
 
 }
-
-module.exports = Main;

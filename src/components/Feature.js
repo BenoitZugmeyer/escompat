@@ -1,6 +1,5 @@
-let React = require("react");
-let FeatureClass = require("../Feature");
-let Component = require("../Component");
+import React from "react";
+import Component from "../Component";
 
 function mixColors(c1, c2, p) {
   return `hsl(
@@ -14,33 +13,11 @@ function percent(n) {
   return Math.round(n * 100) + "%";
 }
 
-class Feature extends Component {
+export default class Feature extends Component {
 
-  render() {
-    let feature = this.props.feature;
-    let groupStyle = {
-      color: "#888",
-    };
-    let supports = [];
-    let previousSupport;
-    for (let support of feature.supports) {
-      if (!previousSupport ||
-          previousSupport.version.project !== support.version.project ||
-          previousSupport.score !== support.score ||
-          previousSupport.optionalScore !== support.optionalScore) {
-        supports.push(support);
-      }
-
-      previousSupport = support;
-    }
-
-    return <div>
-      <span style={groupStyle}>{feature.group}</span> {feature.name}
-      <ul>
-        {supports.map(s => this.renderSupport(s))}
-      </ul>
-    </div>;
-  }
+  static propTypes = {
+    feature: React.PropTypes.object.isRequired,
+  };
 
   renderSupport(support) {
     let supported = [89, 56, 62];
@@ -54,17 +31,63 @@ class Feature extends Component {
       backgroundColor: mixColors(supported, notSupported, support.optionalScore),
     };
 
-    return <li key={support.version.id} style={style}>
-      {support.version.project.name} {support.version.version}: {percent(support.score)}
-      &nbsp;
-      {support.score !== support.optionalScore && <span style={optionalStyle}>({percent(support.optionalScore)})</span>}
-    </li>;
+    return (
+      <li key={support.version.id} style={style}>
+        {support.version.project.name} {support.version.version}: {percent(support.score)}
+        &nbsp;
+        {support.score !== support.optionalScore && <span style={optionalStyle}>({percent(support.optionalScore)})</span>}
+      </li>
+    );
+  }
+
+  renderTest(test) {
+    return (
+      <span>
+        {test.name}
+        {test.exec.map(
+          (exec, i) => (
+            <pre key={i}>{exec.script}</pre>
+            )
+        )}
+      </span>
+    );
+  }
+
+  render() {
+    let feature = this.props.feature;
+    // console.log(feature);
+    let groupStyle = {
+      color: "#888",
+    };
+    // let supports = [];
+    // let previousSupport;
+    // for (let support of feature.supports) {
+    //   if (!previousSupport ||
+    //       previousSupport.version.project !== support.version.project ||
+    //       previousSupport.score !== support.score ||
+    //       previousSupport.optionalScore !== support.optionalScore) {
+    //     supports.push(support);
+    //   }
+
+    //   previousSupport = support;
+    // }
+
+        // <ul>
+        //   {supports.map((s) => this.renderSupport(s))}
+        // </ul>
+    return (
+      <div>
+        <span style={groupStyle}>{feature.group.name}</span> {feature.name}
+        {feature.tests.length === 1 ?
+          this.renderTest(feature.tests[0]) :
+          <ul>
+            {feature.tests.map(
+              (test, i) => <li key={i}>{this.renderTest(test)}</li>
+            )}
+          </ul>
+        }
+      </div>
+    );
   }
 
 }
-
-Feature.propTypes = {
-  feature: React.PropTypes.instanceOf(FeatureClass).isRequired,
-};
-
-module.exports = Feature;
