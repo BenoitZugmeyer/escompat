@@ -21,7 +21,7 @@ let config = {
     loaders: [
       {
         test: /\.js$/,
-        exclude: /node_modules|src\/data\//,
+        exclude: /node_modules|src\/data\.js/,
         loaders: ["babel-loader"],
       }
     ],

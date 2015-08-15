@@ -339,7 +339,8 @@ function cleanShort(short) {
 
 
 Promise.all(files.map(downloadFile)).then(function (args) {
-  console.log(compress(args));
+  let result = compress(args);
+  console.log(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
   console.log(e.stack);
 });
