@@ -31,20 +31,28 @@ function get(fileURL) {
   });
 }
 
-function evalFile(body) {
+function evalFile(name, body) {
   let module = { exports: {} };
   let sandbox = {
     exports: module.exports,
     module: module,
     require: function (name) {
-      if (name !== "object-assign") {
-        throw new Error("Tried to import " + name + ". No can do.");
+      if (name !== "object.assign") {
+        throw new Error(`In ${name}, tried to import ${name}. No can do.`);
       }
-      return Object.assign;
+      return { shim() {} };
     },
+    Object: {
+      assign: Object.assign
+    }
   };
 
-  vm.runInNewContext(body, sandbox);
+  try {
+    vm.runInNewContext(body, sandbox);
+  }
+  catch (e) {
+    throw new Error(`Error while evaluating ${name}: ${e.message}`);
+  }
   return module.exports;
 }
 
@@ -74,7 +82,7 @@ function formatFile(data) {
 
 function downloadFile(file) {
   let fileURL = url.resolve(baseURL, file);
-  return get(fileURL).then(read).then(evalFile).then(formatFile);
+  return get(fileURL).then(read).then((body) => evalFile(fileURL, body)).then(formatFile);
 }
 
 
@@ -333,7 +341,7 @@ function cleanShort(short) {
 Promise.all(files.map(downloadFile)).then(function (args) {
   console.log(compress(args));
 }).catch(function (e) {
-  console.log("Error: " + e.stack);
+  console.log(e.stack);
 });
 
 function formatFeature(group, data) {
