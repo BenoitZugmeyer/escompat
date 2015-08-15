@@ -13,7 +13,9 @@ config.plugins.push(
   new webpack.NoErrorsPlugin()
 );
 
-config.module.loaders[0].loaders.unshift("react-hot");
+config.module.loaders.unshift({
+  loader: "react-hot"
+});
 
 let server = new WebpackDevServer(webpack(config), {
   publicPath: config.output.publicPath,
