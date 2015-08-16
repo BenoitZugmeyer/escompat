@@ -18,6 +18,7 @@ export default function search(query) {
     let score = query.match({
       name: feature.name,
       group: feature.group.name,
+      test: feature.tests.map((test) => test.name || feature.name).join(" "),
     });
     if (score) {
       score -= i / 1e5;  // to have a stable sort
