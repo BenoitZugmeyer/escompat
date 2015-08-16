@@ -35,16 +35,16 @@ function evalFile(name, body) {
   let module = { exports: {} };
   let sandbox = {
     exports: module.exports,
-    module: module,
-    require: function (name) {
+    module,
+    require(name) {
       if (name !== "object.assign") {
         throw new Error(`In ${name}, tried to import ${name}. No can do.`);
       }
       return { shim() {} };
     },
     Object: {
-      assign: Object.assign
-    }
+      assign: Object.assign,
+    },
   };
 
   try {
@@ -73,7 +73,7 @@ function formatFile(data) {
   }
 
   let group = {
-    name: data.name
+    name: data.name,
   };
 
   let features = data.tests.map(function (test) {
@@ -283,7 +283,7 @@ let projects = {
     runtime: runtimes.jsc,
     link: "https://www.webkit.org/",
     short: "WK",
-  }
+  },
 
 };
 
@@ -353,7 +353,7 @@ Promise.all(files.map(downloadFile)).then(function (args) {
 function unindent(str) {
   let indentation = str.match(/^( *)\S/m);
   if (!indentation) return str;
-  return str.replace(new RegExp(indentation[1], 'g'), '');
+  return str.replace(new RegExp(indentation[1], "g"), "");
 }
 
 function formatFn(fn) {
@@ -364,11 +364,11 @@ function formatFn(fn) {
 }
 
 function formatExec(exec) {
-  if (typeof exec === "function") return [{script: formatFn(exec), type: null}];
+  if (typeof exec === "function") return [ { script: formatFn(exec), type: null } ];
   if (Array.isArray(exec)) {
     return exec.map((exec) => ({
       script: formatFn(exec.script),
-      type: exec.type || null
+      type: exec.type || null,
     }));
   }
 
@@ -418,80 +418,80 @@ function formatFeature(group, _, data) {
   };
 }
 
-function computeSupport(versions, tests) {
-  let result = versions.map(function (version) {
-    return {
-      version,
-      score: 0,
-      optionalScore: 0,
-      tested: true,
-    };
-  });
+// function computeSupport(versions, tests) {
+//   let result = versions.map(function (version) {
+//     return {
+//       version,
+//       score: 0,
+//       optionalScore: 0,
+//       tested: true,
+//     };
+//   });
 
-  for (let test of tests) {
-    let previousPass;
-    let previousPassProject;
+//   for (let test of tests) {
+//     let previousPass;
+//     let previousPassProject;
 
-    for (let support of result) {
-      let pass = test.res[support.version.id];
+//     for (let support of result) {
+//       let pass = test.res[support.version.id];
 
-      if (pass === undefined && previousPassProject === support.version.project) {
-        pass = previousPass;
-      }
-      else {
-        previousPass = pass;
-        previousPassProject = support.version.project;
-      }
+//       if (pass === undefined && previousPassProject === support.version.project) {
+//         pass = previousPass;
+//       }
+//       else {
+//         previousPass = pass;
+//         previousPassProject = support.version.project;
+//       }
 
-      if (pass && typeof pass === "object") pass = pass.val;
+//       if (pass && typeof pass === "object") pass = pass.val;
 
-      if (pass === true) {
-        support.score += 1;
-        support.optionalScore += 1;
-      }
-      else if (pass === null) {
-        support.tested = false;
-      }
-      else if (typeof pass === "string") {
-        support.directlyUsable = false;
-        support.optionalScore += 1;
-      }
-    }
-  }
+//       if (pass === true) {
+//         support.score += 1;
+//         support.optionalScore += 1;
+//       }
+//       else if (pass === null) {
+//         support.tested = false;
+//       }
+//       else if (typeof pass === "string") {
+//         support.directlyUsable = false;
+//         support.optionalScore += 1;
+//       }
+//     }
+//   }
 
-  for (let support of result) {
-    support.score /= tests.length;
-    support.optionalScore /= tests.length;
-  }
+//   for (let support of result) {
+//     support.score /= tests.length;
+//     support.optionalScore /= tests.length;
+//   }
 
-  function firstNumbers(version) {
-    return /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
-  }
+//   function firstNumbers(version) {
+//     return /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
+//   }
 
-  function compareVersions(av, bv) {
-    av = firstNumbers(av);
-    bv = firstNumbers(bv);
-    let length = Math.max(av.length, bv.length);
-    for (let i = 0; i < length; i++) {
-      let a = av[i] || 0;
-      let b = bv[i] || 0;
-      if (a !== b) {
-        return a - b;
-      }
-    }
-    return 0;
-  }
+//   function compareVersions(av, bv) {
+//     av = firstNumbers(av);
+//     bv = firstNumbers(bv);
+//     let length = Math.max(av.length, bv.length);
+//     for (let i = 0; i < length; i++) {
+//       let a = av[i] || 0;
+//       let b = bv[i] || 0;
+//       if (a !== b) {
+//         return a - b;
+//       }
+//     }
+//     return 0;
+//   }
 
-  result.sort(function (a, b) {
-    let av = a.version;
-    let bv = b.version;
+//   result.sort(function (a, b) {
+//     let av = a.version;
+//     let bv = b.version;
 
-    if (av.project.name !== bv.project.name) {
-      return av.project.name > bv.project.name ? 1 : -1;
-    }
+//     if (av.project.name !== bv.project.name) {
+//       return av.project.name > bv.project.name ? 1 : -1;
+//     }
 
-    return compareVersions(a.version.version, b.version.version);
-  });
+//     return compareVersions(a.version.version, b.version.version);
+//   });
 
-  return result;
-}
+//   return result;
+// }

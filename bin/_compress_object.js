@@ -113,8 +113,8 @@ function compressValue(value, map, pushReference) {
 
 export default function main(value) {
   let map = countValues(value);
-  var references = [];
-  var body = compressValue(value, map, (reference) => references.push(reference));
+  let references = [];
+  let body = compressValue(value, map, (reference) => references.push(reference));
   let referencesText = references.length ? `var ${references.join(",")}` : "";
 
   let mapObject = `
@@ -125,13 +125,13 @@ function ${MAP_OBJECT_NAME}(k) {
   for (; i < a.length; i++) o[k[i - 1]] = a[i];
   return o;
 }
-  `.replace(/(\W|^)\s+/g, '$1').replace(/\s+(\W|$)/g, '$1');
+  `.replace(/(\W|^)\s+/g, "$1").replace(/\s+(\W|$)/g, "$1");
 
   return {
     declarations: `${mapObject}${referencesText};`,
     body,
     toString() {
       return `(function(){${this.declarations}return ${this.body}}())`;
-    }
+    },
   };
-};
+}

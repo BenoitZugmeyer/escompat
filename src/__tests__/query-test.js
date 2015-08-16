@@ -5,7 +5,7 @@ const {
   _test_tokenize: tokenize,
 } = require("../query");
 
-describe('query', function () {
+describe("query", function () {
 
   let format = (ast) => {
     if (Array.isArray(ast)) return ast.map(format).join(" ");
@@ -24,7 +24,7 @@ describe('query', function () {
     expect(format(ast)).toBe(expected);
   };
 
-  it('tokenizes', () => {
+  it("tokenizes", () => {
     assertAST(tokenize(""),
               "");
 
@@ -54,7 +54,7 @@ describe('query', function () {
 
   });
 
-  it('normalizes', () => {
+  it("normalizes", () => {
     assertAST(normalize(tokenize("blah")),
               "and( blah )");
 

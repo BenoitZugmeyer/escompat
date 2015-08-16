@@ -6,16 +6,16 @@ let getPath = (fullPath) => path.resolve(__dirname, ...fullPath.split("/"));
 
 let config = {
   context: getPath("src"),
-  entry: ["./main"],
+  entry: "./main",
   output: {
     path: getPath("dist"),
     filename: "main.js",
-    publicPath: "/dist/"
+    publicPath: "/dist/",
   },
   plugins: [
     new webpack.DefinePlugin({
       "process.env": {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV || "")
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV || ""),
       },
     }),
   ],
@@ -28,10 +28,10 @@ let config = {
         query: {
           stage: 0,
           cacheDirectory: true,
-        }
-      }
+        },
+      },
     ],
-  }
+  },
 };
 
 if (process.env.NODE_ENV === "production") {
@@ -39,8 +39,8 @@ if (process.env.NODE_ENV === "production") {
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
-        warnings: false
-      }
+        warnings: false,
+      },
     })
   );
 }

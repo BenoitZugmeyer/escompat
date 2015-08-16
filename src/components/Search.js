@@ -12,7 +12,7 @@ export default class Search extends Component {
   };
 
   static contextTypes = {
-    router: React.PropTypes.func
+    router: React.PropTypes.func,
   };
 
   constructor(props) {

@@ -35,7 +35,7 @@ function tokenize(query) {
 
   let isSpace = (ch) => ch === " ";
   let isWordCharacter = (ch) => ch && !isSpace(ch) && ch !== ":" && ch !== ")" && ch !== "(";
-  let isOperator = (op) => ["or", "and", "not"].indexOf(op) >= 0;
+  let isOperator = (op) => [ "or", "and", "not" ].indexOf(op) >= 0;
 
   let skipSpaces = () => {
     while (isSpace(current())) next();
@@ -89,7 +89,7 @@ function normalize(query) {
 
   function transitionToAnd() {
     let parent = group;
-    group = mkOperator("and", [group.children.pop()]);
+    group = mkOperator("and", [ group.children.pop() ]);
     group.parent = parent;
     parent.children.push(group);
   }
@@ -103,7 +103,7 @@ function normalize(query) {
 
   function transitionToOr() {
     let child = group;
-    group = mkOperator("or", [child]);
+    group = mkOperator("or", [ child ]);
     group.parent = child.parent;
     if (!child.parent) root = group;
     child.parent = group;

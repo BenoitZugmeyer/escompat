@@ -31,8 +31,8 @@ export default class Feature extends Component {
   }
 
   renderSupport(support) {
-    let supported = [89, 56, 62];
-    let notSupported = [10, 97, 65];
+    let supported = [ 89, 56, 62 ];
+    let notSupported = [ 10, 97, 65 ];
 
     let style = {
       backgroundColor: mixColors(supported, notSupported, support.score),

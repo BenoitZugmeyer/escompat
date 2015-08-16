@@ -8,9 +8,51 @@ plugins:
 
 rules:
   strict: 0
-  comma-dangle: 0
+  comma-dangle: [1, "always-multiline"]
   no-constant-condition: 0
+  no-unexpected-multiline: 1
+  consistent-return: 1
+  curly: [1, "multi-line"]
+  dot-notation: 1
+  dot-location: [1, "property"]
+  eqeqeq: 1
+  no-alert: 1
+  no-empty-label: 1
+  no-eval: 1
+  no-extend-native: 1
+  no-extra-bind: 1
+  no-implicit-coercion: 1
+  no-implied-eval: 1
+  no-iterator: 1
+  no-labels: 1
+  no-lone-blocks: 1
+  no-loop-func: 1
+  no-multi-spaces: 1
+  no-multi-str: 1
+  no-native-reassign: 1
+  quote-props: [1, "as-needed"]
+  quotes: [1, "double", "avoid-escape"]
+  semi-spacing: 1
+  semi: 1
+
+  comma-spacing: 1
+  comma-style: 1
+  brace-style: [1, "stroustrup"]
+  operator-linebreak: 1
+  array-bracket-spacing: [1, "always"]
+  object-curly-spacing: [1, "always"]
+
+  # es6
   arrow-parens: 1
+  arrow-spacing: 1
+  constructor-super: 1
+  no-class-assign: 1
+  no-const-assign: 1
+  no-this-before-super: 1
+  no-var: 1
+  object-shorthand: 1
+  prefer-const: 0 # maybe?
+  prefer-spread: 1
 
   react/display-name: 0
   react/jsx-boolean-value: 1
@@ -53,3 +95,4 @@ settings:
 
 globals:
   console: false
+  process: false

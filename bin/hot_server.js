@@ -1,7 +1,6 @@
-"use strict";
-let webpack = require("webpack");
-let WebpackDevServer = require("webpack-dev-server");
-let config = require("../webpack.config");
+import webpack from "webpack";
+import WebpackDevServer from "webpack-dev-server";
+import config from "../webpack.config";
 
 config.entry.unshift(
   "webpack-dev-server/client?http://0.0.0.0:3000",
@@ -14,19 +13,18 @@ config.plugins.push(
 );
 
 config.module.loaders.unshift({
-  loader: "react-hot"
+  loader: "react-hot",
 });
 
 let server = new WebpackDevServer(webpack(config), {
   publicPath: config.output.publicPath,
   hot: true,
-  historyApiFallback: true
+  historyApiFallback: true,
 });
 
-server.listen(3000, "localhost", function (err) {
-  if (err) {
-    console.log(err);
-  }
-
-  console.log("Listening at localhost:3000");
+server.listen(3000, "localhost", (err) => {
+  /*eslint-disable no-console*/
+  if (err) console.log(err);
+  else console.log("Listening at localhost:3000");
+  /*eslint-enable no-console*/
 });

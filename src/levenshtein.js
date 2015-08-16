@@ -7,7 +7,7 @@ export default function levenshtein(m, n) {
   let previous = [ 0 ];
   for (let i = 1; i <= m.length; i++) previous[i] = i;
 
-  let matrix = [previous];
+  let matrix = [ previous ];
   let current;
 
   for (let indexN = 0; indexN < n.length; indexN++) {

@@ -1,5 +1,6 @@
 /*eslint-env browser*/
 import React from "react";
+import Perf from "react/lib/ReactDefaultPerf";
 import Router from "react-router";
 let { Route, DefaultRoute } = Router;
 
@@ -19,5 +20,5 @@ Router.run(routes, (Handler) => {
 
 if (process.env.NODE_ENV !== "production") {
   window.React = React;
-  window.Perf = require("react/lib/ReactDefaultPerf");
+  window.Perf = Perf;
 }
