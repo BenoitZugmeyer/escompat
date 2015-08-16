@@ -4,6 +4,26 @@ import { isValidElement } from "react/lib/ReactElement";
 
 const names = new Map();
 
+const rootNS = sansSel();
+
+rootNS.transforms.minWidth = (value) => {
+  if (value === "min-content") {
+    value = [
+      "-webkit-min-content",
+      "min-content",
+    ];
+  }
+  return { minWidth: value };
+};
+
+rootNS.transforms.userSelect = (value) => {
+  return {
+    WebkitUserSelect: value,
+    userSelect: value,
+  };
+};
+
+
 function initComponentNamespace(Component) {
   let name;
   if (names.has(Component.name)) {

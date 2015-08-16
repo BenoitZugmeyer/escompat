@@ -17,21 +17,27 @@ export default class Search extends Component {
 
   constructor(props) {
     super(props);
+    let query = this.props.params.query;
     this.state = {
-      searchResults: search(this.props.params.query),
+      query,
+      searchResults: search(query),
     };
   }
 
   search(query) {
     this.context.router.replaceWith(query ? "search" : "index", { query });
-    this.setState({ searchResults: search(query) });
+    this.setState({
+      query,
+      searchResults: search(query),
+    });
   }
 
   render() {
+    let query = this.state.query;
     return (
       <div>
-        <SearchInput initialValue={this.props.params.query} onChange={(value) => this.search(value)} />
-        <SearchResults results={this.state.searchResults} />
+        <SearchInput initialValue={query} onChange={(value) => this.search(value)} />
+        <SearchResults results={this.state.searchResults} hasQuery={Boolean(query)} />
       </div>
     );
 

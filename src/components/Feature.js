@@ -2,18 +2,6 @@ import React from "react";
 import SansSel from "../sans-sel";
 import Component from "../Component";
 
-function mixColors(c1, c2, p) {
-  return `hsl(
-    ${c1[0] * p + c2[0] * (1 - p)},
-    ${c1[1] * p + c2[1] * (1 - p)}%,
-    ${c1[2] * p + c2[2] * (1 - p)}%
-  )`;
-}
-
-function percent(n) {
-  return Math.round(n * 100) + "%";
-}
-
 @SansSel
 export default class Feature extends Component {
 
@@ -22,11 +10,52 @@ export default class Feature extends Component {
   };
 
   static styles = {
+
     root: {
+      borderBottom: "1px solid #888",
+      "first-child": {
+        //borderTop: "1px solid #888",
+      },
     },
+
+    head: {
+      display: "flex",
+      flexWrap: "wrap",
+      cursor: "pointer",
+      userSelect: "none",
+    },
+
+    cell: {
+      padding: "10px 5px",
+    },
+
     group: {
+      inherit: "cell",
+
+      backgroundColor: "#eee",
+      width: "12ch",
       color: "#888",
+      textAlign: "center",
+      marginRight: 10,
+      flexShrink: 0,
     },
+
+    name: {
+      inherit: "cell",
+
+      flexShrink: 1,
+      minWidth: "6ch",
+    },
+
+    support: {
+      inherit: "cell",
+
+      textAlign: "right",
+      flex: 1,
+      whiteSpace: "nowrap",
+      minWidth: "min-content",
+    },
+
   };
 
   constructor(props) {
@@ -38,27 +67,6 @@ export default class Feature extends Component {
 
   toggle() {
     this.setState((previous) => ({ open: !previous.open }));
-  }
-
-  renderSupport(support) {
-    let supported = [ 89, 56, 62 ];
-    let notSupported = [ 10, 97, 65 ];
-
-    let style = {
-      backgroundColor: mixColors(supported, notSupported, support.score),
-    };
-
-    let optionalStyle = {
-      backgroundColor: mixColors(supported, notSupported, support.optionalScore),
-    };
-
-    return (
-      <li key={support.version.id} style={style}>
-        {support.version.project.name} {support.version.version}: {percent(support.score)}
-        &nbsp;
-        {support.score !== support.optionalScore && <span style={optionalStyle}>({percent(support.optionalScore)})</span>}
-      </li>
-    );
   }
 
   renderTest(test) {
@@ -89,30 +97,13 @@ export default class Feature extends Component {
 
   render() {
     let feature = this.props.feature;
-    // console.log(feature);
-    let groupStyle = {
-      color: "#888",
-    };
-    // let supports = [];
-    // let previousSupport;
-    // for (let support of feature.supports) {
-    //   if (!previousSupport ||
-    //       previousSupport.version.project !== support.version.project ||
-    //       previousSupport.score !== support.score ||
-    //       previousSupport.optionalScore !== support.optionalScore) {
-    //     supports.push(support);
-    //   }
 
-    //   previousSupport = support;
-    // }
-
-        // <ul>
-        //   {supports.map((s) => this.renderSupport(s))}
-        // </ul>
     return (
       <div ss="root">
-        <div onClick={() => this.toggle()}>
-          <span ss="group" style={groupStyle}>{feature.group.name}</span> {feature.name}
+        <div ss="head" onClick={() => this.toggle()}>
+          <span ss="group">{feature.group.name}</span>
+          <span ss="name">{feature.name}</span>
+          <span ss="support"></span>
         </div>
         {this.state.open && this.renderTests()}
       </div>

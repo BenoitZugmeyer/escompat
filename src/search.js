@@ -3,7 +3,7 @@ import Query from "./query";
 
 export default function search(query) {
   query = query && query.trim();
-  if (!query) return data;
+  if (!query) return [];
 
   query = new Query(query, {
     fields: {

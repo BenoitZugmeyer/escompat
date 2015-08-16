@@ -6,6 +6,7 @@ let { Route, DefaultRoute } = Router;
 
 import Search from "./components/Search";
 import Main from "./components/Main";
+import SansSel from "./sans-sel";
 
 let routes = (
   <Route name="index" path="/" handler={Main}>
@@ -17,6 +18,15 @@ let routes = (
 Router.run(routes, (Handler) => {
   React.render(<Handler />, document.body);
 });
+
+SansSel.root.add("body", {
+  fontFamily: '"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif',
+  color: "#333",
+  margin: "10px",
+});
+
+document.body.className = SansSel.root.render("body");
+
 
 if (process.env.NODE_ENV !== "production") {
   window.React = React;
