@@ -30,12 +30,3 @@ export default function levenshtein(m, n) {
 
   return current[current.length - 1];
 }
-
-if (process.env.NODE_ENV === "tests") {
-  let assert = require("assert");
-
-  assert.equal(levenshtein("kitten", "sitting"), 3);
-  assert.equal(levenshtein("Saturday", "Sunday"), 3);
-
-  console.log("tests ok");
-}
