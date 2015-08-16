@@ -19,6 +19,17 @@ export default class Feature extends Component {
     feature: React.PropTypes.object.isRequired,
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+    };
+  }
+
+  toggle() {
+    this.setState((previous) => ({ open: !previous.open }));
+  }
+
   renderSupport(support) {
     let supported = [89, 56, 62];
     let notSupported = [10, 97, 65];
@@ -53,6 +64,19 @@ export default class Feature extends Component {
     );
   }
 
+  renderTests() {
+    let tests = this.props.feature.tests;
+    if (tests.length === 1) return this.renderTest(tests[0]);
+
+    return (
+      <ul>
+        {tests.map(
+          (test, i) => <li key={i}>{this.renderTest(test)}</li>
+        )}
+      </ul>
+    );
+  }
+
   render() {
     let feature = this.props.feature;
     // console.log(feature);
@@ -77,15 +101,10 @@ export default class Feature extends Component {
         // </ul>
     return (
       <div>
-        <span style={groupStyle}>{feature.group.name}</span> {feature.name}
-        {feature.tests.length === 1 ?
-          this.renderTest(feature.tests[0]) :
-          <ul>
-            {feature.tests.map(
-              (test, i) => <li key={i}>{this.renderTest(test)}</li>
-            )}
-          </ul>
-        }
+        <div onClick={() => this.toggle()}>
+          <span style={groupStyle}>{feature.group.name}</span> {feature.name}
+        </div>
+        {this.state.open && this.renderTests()}
       </div>
     );
   }
