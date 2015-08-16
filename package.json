@@ -15,6 +15,7 @@
     "eslint-plugin-react": "3.2.2",
     "jest-cli": "^0.5.0",
     "react-hot-loader": "1.2.8",
+    "sans-sel": "git+https://github.com/BenoitZugmeyer/sans-sel.git#master",
     "webpack": "1.11.0",
     "webpack-dev-server": "1.10.1"
   },

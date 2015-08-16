@@ -1,4 +1,5 @@
 import React from "react";
+import SansSel from "../sans-sel";
 import Component from "../Component";
 
 function mixColors(c1, c2, p) {
@@ -13,10 +14,19 @@ function percent(n) {
   return Math.round(n * 100) + "%";
 }
 
+@SansSel
 export default class Feature extends Component {
 
   static propTypes = {
     feature: React.PropTypes.object.isRequired,
+  };
+
+  static styles = {
+    root: {
+    },
+    group: {
+      color: "#888",
+    },
   };
 
   constructor(props) {
@@ -100,9 +110,9 @@ export default class Feature extends Component {
         //   {supports.map((s) => this.renderSupport(s))}
         // </ul>
     return (
-      <div>
+      <div ss="root">
         <div onClick={() => this.toggle()}>
-          <span style={groupStyle}>{feature.group.name}</span> {feature.name}
+          <span ss="group" style={groupStyle}>{feature.group.name}</span> {feature.name}
         </div>
         {this.state.open && this.renderTests()}
       </div>
