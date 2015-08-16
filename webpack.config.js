@@ -6,7 +6,7 @@ let getPath = (fullPath) => path.resolve(__dirname, ...fullPath.split("/"));
 
 let config = {
   context: getPath("src"),
-  entry: "./main",
+  entry: [ "./main" ],
   output: {
     path: getPath("dist"),
     filename: "main.js",

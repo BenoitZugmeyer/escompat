@@ -20,7 +20,7 @@
     "webpack-dev-server": "1.10.1"
   },
   "scripts": {
-    "dist": "NODE_ENV=production webpack && sed -i \"s/?[a-f0-9]\\\\+/?$(sha1sum dist/main.js | cut -f1 -d' ')/\" index.html",
+    "dist": "NODE_ENV=production babel-node $(npm bin)/webpack && sed -i \"s/?[a-f0-9]\\\\+/?$(sha1sum dist/main.js | cut -f1 -d' ')/\" index.html",
     "update": "babel-node bin/uptade_data.js > src/data.js",
     "serve": "babel-node bin/hot_server.js",
     "lint": "eslint src bin webpack.config.js || true",
