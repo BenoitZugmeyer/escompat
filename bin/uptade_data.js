@@ -10,19 +10,19 @@ import compress from "./_compress_object";
 
 const baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
 const files = [
-    "data-es5.js",
-    "data-es6.js",
-    "data-es7.js",
-    "data-esintl.js",
-    "data-non-standard.js",
+  "data-es5.js",
+  "data-es6.js",
+  "data-es7.js",
+  "data-esintl.js",
+  "data-non-standard.js",
 ];
 
 function print(str) {
-  process.stdout.write(str + '\n');
+  process.stdout.write(str + "\n");
 }
 
 function printErr(str) {
-  process.stderr.write(str + '\n');
+  process.stderr.write(str + "\n");
 }
 
 function read(response) {
@@ -68,30 +68,21 @@ function evalFile(name, body) {
 }
 
 function formatFile(data) {
-  data.versions = [];
+  let group = {
+    name: data.name,
+    versions: [],
+  };
 
   for (let browserId in data.browsers) {
     let browser = data.browsers[browserId];
-    browser.id = browserId;
-    browser.short = cleanShort(browser.short);
-
-    for (let version of getVersions(browser.short)) {
-      data.versions.push(Object.assign({
-        obsolete: browser.obsolete,
-        id: browserId,
-      }, version));
-    }
+    let versions = getVersions(browser);
+    versions.forEach((v) => v.browserId = browserId);
+    group.versions.push(...versions);
   }
 
-  let group = {
-    name: data.name,
-  };
+  sortVersions(group.versions);
 
-  let features = data.tests.map(function (test) {
-    return formatFeature(group, data, test);
-  });
-
-  return features;
+  return data.tests.map((test) => formatFeature(group, test));
 }
 
 function readFileFromCache(tempFile) {
@@ -129,7 +120,8 @@ function processFile(file) {
   return Promise.all([
     bodyPromise.then((body) => cacheFile(cacheTempFile, body)),
     bodyPromise.then((body) => evalFile(fileURL, body)).then(formatFile),
-  ]);
+  ])
+  .then((r) => r[1]);
 }
 
 
@@ -272,15 +264,22 @@ let projects = {
   node: {
     name: "Node.js",
     type: "scriptable runtime",
+    runtime: runtimes.v8,
     link: "https://nodejs.org/",
+  },
+
+  operalegacy: {
+    name: "Opera (legacy)",
+    type: "browser",
+    runtime: runtimes.other,
+    link: "http://www.opera.com/",
   },
 
   opera: {
     name: "Opera",
     type: "browser",
-    runtime: runtimes.other,
+    runtime: runtimes.v8,
     link: "http://www.opera.com/",
-    note: "Please see Chromium results for latest versions of Opera (15+)",
     short: "OP",
   },
 
@@ -343,7 +342,39 @@ function getProjectByShortName(short) {
 let number = `(?:\\.?\\d+(?:\\.\\d+)*)`;
 let versionNumber = new RegExp(`(?:([^0-9].*?)\\s*)?(<?${number}(?:-${number})?\\+?(?: ESR)?)$`);
 
-function getVersions(short) {
+function sortVersions(versions) {
+  function firstNumbers(version) {
+    return /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
+  }
+
+  function compareVersionNumbers(av, bv) {
+    av = firstNumbers(av);
+    bv = firstNumbers(bv);
+    let length = Math.max(av.length, bv.length);
+    for (let i = 0; i < length; i++) {
+      let a = av[i] || 0;
+      let b = bv[i] || 0;
+      if (a !== b) {
+        return a - b;
+      }
+    }
+    return 0;
+  }
+
+  versions.sort((va, vb) => {
+    let nameA = va.project.name.toLowerCase();
+    let nameB = vb.project.name.toLowerCase();
+
+    return (
+      nameA === nameB ? compareVersionNumbers(va.number, vb.number) :
+      nameA > nameB ? 1 :
+        -1
+    );
+  });
+}
+
+function getVersions(browser) {
+  let short = cleanShort(browser.short);
   let result = [];
 
   let previousProject;
@@ -364,9 +395,17 @@ function getVersions(short) {
       throw new Error(`No project found for ${s}`);
     }
 
+    let number = match ? match[2] : null;
+
+    if (project === projects.opera && parseInt(number, 10) < 15) {
+      project = projects.operalegacy;
+    }
+
     result.push({
       project,
-      version: match ? match[2] : null,
+      number,
+      obsolete: Boolean(browser.obsolete),
+      unstable: Boolean(browser.unstable),
     });
 
     previousProject = project;
@@ -419,17 +458,104 @@ function formatExec(exec) {
   throw new Error(`exec has wrong type`);
 }
 
-function formatRes(res) {
-  if (typeof res !== "object") throw new Error(`res is not an object`);
-  return res;
+function *iterVersionsByProject(versions) {
+  let previousProject;
+  let projectVersions;
+  for (let version of versions) {
+    if (!previousProject || previousProject !== version.project) {
+      if (previousProject) {
+        yield [ previousProject, projectVersions ];
+      }
+      previousProject = version.project;
+      projectVersions = [ version ];
+    }
+    else {
+      projectVersions.push(version);
+    }
+  }
+  if (previousProject) {
+    yield [ previousProject, projectVersions ];
+  }
 }
 
-function formatTest(name, data) {
+function formatRes(group, res) {
+  if (typeof res !== "object") throw new Error(`res is not an object`);
+
+  let result = [];
+
+  for (let [ project, versions ] of iterVersionsByProject(group.versions)) {
+    let firstFullSupportVersion;
+    let firstMixedSupportVersion;
+    let firstNoSupportVersion;
+
+    for (let version of versions.reverse()) {
+      if (!res.hasOwnProperty(version.browserId)) continue;
+      let versionRes = res[version.browserId];
+      if (versionRes === null) continue; // not tested
+      let pass, note;
+
+      if (typeof versionRes === "boolean") {
+        pass = versionRes;
+      }
+      else if (typeof versionRes === "object") {
+        if (typeof versionRes.val === "boolean") {
+          pass = versionRes.val;
+        }
+        else if (versionRes.val === "flagged" || versionRes.val === "needs-polyfill-or-native") {
+          if (typeof versionRes.note_id !== "string") {
+            throw new Error(`Missing note_id for flagged version resultat`);
+          }
+          pass = true;
+        }
+        else {
+          throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+        }
+
+        if (typeof versionRes.note_id === "string") {
+          note = versionRes.note_id;
+        }
+      }
+      else if (versionRes === "flagged") {
+        pass = true;
+        note = "flagged";
+      }
+      else if (versionRes === "strict") {
+        pass = true;
+        note = "strict_only";
+      }
+      else {
+        throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+      }
+
+      // TODO don't ignore note if !pass
+      if (!pass) {
+        firstNoSupportVersion = version;
+      }
+      else if (note) {
+        firstMixedSupportVersion = version;
+      }
+      else {
+        firstFullSupportVersion = version;
+      }
+    }
+
+    result.push({
+      project,
+      firstFullSupportVersion,
+      firstMixedSupportVersion,
+      firstNoSupportVersion,
+    });
+  }
+
+  return result;
+}
+
+function formatTest(group, name, data) {
   try {
     return {
       name,
       exec: formatExec(data.exec),
-      res: formatRes(data.res),
+      res: formatRes(group, data.res),
     };
   }
   catch (e) {
@@ -437,11 +563,11 @@ function formatTest(name, data) {
   }
 }
 
-function formatFeature(group, _, data) {
+function formatFeature(group, data) {
   let tests = [];
   if (data.res) {
     try {
-      tests.push(formatTest(null, data));
+      tests.push(formatTest(group, null, data));
     }
     catch (e) {
       throw new Error(`while formating feature "${group.name} - ${data.name}":\n${e.message}`);
@@ -450,7 +576,12 @@ function formatFeature(group, _, data) {
 
   if (data.subtests) {
     for (let name in data.subtests) {
-      tests.push(formatTest(name, data.subtests[name]));
+      try {
+        tests.push(formatTest(group, name, data.subtests[name]));
+      }
+      catch (e) {
+        throw new Error(`while formating feature "${group.name} - ${name}":\n${e.message}`);
+      }
     }
   }
 
@@ -458,84 +589,5 @@ function formatFeature(group, _, data) {
     name: data.name,
     group,
     tests,
-    //supports: computeSupport(group.versions, tests),
   };
 }
-
-// function computeSupport(versions, tests) {
-//   let result = versions.map(function (version) {
-//     return {
-//       version,
-//       score: 0,
-//       optionalScore: 0,
-//       tested: true,
-//     };
-//   });
-
-//   for (let test of tests) {
-//     let previousPass;
-//     let previousPassProject;
-
-//     for (let support of result) {
-//       let pass = test.res[support.version.id];
-
-//       if (pass === undefined && previousPassProject === support.version.project) {
-//         pass = previousPass;
-//       }
-//       else {
-//         previousPass = pass;
-//         previousPassProject = support.version.project;
-//       }
-
-//       if (pass && typeof pass === "object") pass = pass.val;
-
-//       if (pass === true) {
-//         support.score += 1;
-//         support.optionalScore += 1;
-//       }
-//       else if (pass === null) {
-//         support.tested = false;
-//       }
-//       else if (typeof pass === "string") {
-//         support.directlyUsable = false;
-//         support.optionalScore += 1;
-//       }
-//     }
-//   }
-
-//   for (let support of result) {
-//     support.score /= tests.length;
-//     support.optionalScore /= tests.length;
-//   }
-
-//   function firstNumbers(version) {
-//     return /\d*(?:\.\d*)*/.exec(version)[0].split(".").map(Number);
-//   }
-
-//   function compareVersions(av, bv) {
-//     av = firstNumbers(av);
-//     bv = firstNumbers(bv);
-//     let length = Math.max(av.length, bv.length);
-//     for (let i = 0; i < length; i++) {
-//       let a = av[i] || 0;
-//       let b = bv[i] || 0;
-//       if (a !== b) {
-//         return a - b;
-//       }
-//     }
-//     return 0;
-//   }
-
-//   result.sort(function (a, b) {
-//     let av = a.version;
-//     let bv = b.version;
-
-//     if (av.project.name !== bv.project.name) {
-//       return av.project.name > bv.project.name ? 1 : -1;
-//     }
-
-//     return compareVersions(a.version.version, b.version.version);
-//   });
-
-//   return result;
-// }
