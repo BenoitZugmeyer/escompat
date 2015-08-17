@@ -20,7 +20,6 @@ export default class Feature extends Component {
 
     head: {
       display: "flex",
-      flexWrap: "wrap",
       cursor: "pointer",
       userSelect: "none",
     },
@@ -40,11 +39,18 @@ export default class Feature extends Component {
       flexShrink: 0,
     },
 
+    nameSupport: {
+      display: "flex",
+      flexWrap: "wrap",
+      flex: 1,
+    },
+
     name: {
       inherit: "cell",
 
       flexShrink: 1,
       minWidth: "6ch",
+      paddingBottom: 0,
     },
 
     support: {
@@ -52,8 +58,24 @@ export default class Feature extends Component {
 
       textAlign: "right",
       flex: 1,
-      whiteSpace: "nowrap",
-      minWidth: "min-content",
+      minWidth: "20ch",
+    },
+
+    tests: {
+      paddingBottom: "10px",
+    },
+
+    exec: {},
+
+    execName: {
+      padding: "10px 10px 0",
+    },
+
+    execScript: {
+      margin: "0",
+      padding: "10px",
+      whiteSpace: "pre-wrap",
+      backgroundColor: "#eee",
     },
 
   };
@@ -71,14 +93,14 @@ export default class Feature extends Component {
 
   renderTest(test) {
     return (
-      <span>
-        {test.name}
+      <div ss="exec">
+        <div ss="execName">{test.name}</div>
         {test.exec.map(
           (exec, i) => (
-            <pre key={i}>{exec.script}</pre>
-            )
+            <pre key={i} ss="execScript">{exec.script}</pre>
+          )
         )}
-      </span>
+      </div>
     );
   }
 
@@ -87,11 +109,11 @@ export default class Feature extends Component {
     if (tests.length === 1) return this.renderTest(tests[0]);
 
     return (
-      <ul>
+      <div ss="tests">
         {tests.map(
-          (test, i) => <li key={i}>{this.renderTest(test)}</li>
+          (test, i) => <div key={i}>{this.renderTest(test)}</div>
         )}
-      </ul>
+      </div>
     );
   }
 
@@ -102,8 +124,10 @@ export default class Feature extends Component {
       <div ss="root">
         <div ss="head" onClick={() => this.toggle()}>
           <span ss="group">{feature.group.name}</span>
-          <span ss="name">{feature.name}</span>
-          <span ss="support"></span>
+          <span ss="nameSupport">
+            <span ss="name">{feature.name}</span>
+            <span ss="support"></span>
+          </span>
         </div>
         {this.state.open && this.renderTests()}
       </div>
