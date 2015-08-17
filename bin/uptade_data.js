@@ -1,8 +1,11 @@
 /*eslint-env node*/
-/*eslint no-console: 0*/
-import https from "https";
-import url from "url";
+
+import fs from "fs";
+import os from "os";
 import vm from "vm";
+import url from "url";
+import path from "path";
+import https from "https";
 import compress from "./_compress_object";
 
 const baseURL = "https://raw.githubusercontent.com/kangax/compat-table/gh-pages/";
@@ -14,6 +17,14 @@ const files = [
     "data-non-standard.js",
 ];
 
+function print(str) {
+  process.stdout.write(str + '\n');
+}
+
+function printErr(str) {
+  process.stderr.write(str + '\n');
+}
+
 function read(response) {
   return new Promise((resolve, reject) => {
     let body = [];
@@ -23,7 +34,7 @@ function read(response) {
   });
 }
 
-function get(fileURL) {
+function downloadFile(fileURL) {
   return new Promise((resolve, reject) => {
     let request = https.request(fileURL, resolve);
     request.on("error", reject);
@@ -83,9 +94,42 @@ function formatFile(data) {
   return features;
 }
 
-function downloadFile(file) {
+function readFileFromCache(tempFile) {
+  return new Promise((resolve, reject) => {
+    fs.stat(tempFile, (error, stats) => {
+      if (error) return reject(error);
+      if (stats.mtime < Date.now() - 3600e3) {
+        return reject(new Error("Cache expired"));
+      }
+      resolve(fs.createReadStream(tempFile));
+    });
+  });
+}
+
+function cacheFile(tempFile, body) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(tempFile, body, (error) => {
+      if (error) return reject(error);
+      resolve();
+    });
+  });
+}
+
+function processFile(file) {
   let fileURL = url.resolve(baseURL, file);
-  return get(fileURL).then(read).then((body) => evalFile(fileURL, body)).then(formatFile);
+  let cacheTempFile = path.resolve(os.tmpdir(), "escompat_" + path.basename(fileURL));
+
+  let bodyPromise = readFileFromCache(cacheTempFile)
+  .catch((e) => {
+    printErr(`Cache miss: ${e.message}`);
+    return downloadFile(fileURL);
+  })
+  .then(read);
+
+  return Promise.all([
+    bodyPromise.then((body) => cacheFile(cacheTempFile, body)),
+    bodyPromise.then((body) => evalFile(fileURL, body)).then(formatFile),
+  ]);
 }
 
 
@@ -341,13 +385,13 @@ function cleanShort(short) {
 
 
 
-Promise.all(files.map(downloadFile)).then(function (args) {
+Promise.all(files.map(processFile)).then(function (args) {
   let data = [];
   for (let arg of args) data.push(...arg);
   let result = compress(data);
-  console.log(`${result.declarations}\nmodule.exports = ${result.body}`);
+  print(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
-  console.log(e.stack);
+  printErr(e.stack);
 });
 
 function unindent(str) {
