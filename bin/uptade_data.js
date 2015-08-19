@@ -82,7 +82,12 @@ function formatFile(data) {
 
   sortVersions(group.versions);
 
-  return data.tests.map((test) => formatFeature(group, test));
+  let notes = collectNotes(data);
+
+  notes.set("flagged", "This feature is behind a flag");
+  notes.set("strict_only", "Works in strict mode only");
+
+  return data.tests.map((featureData) => formatFeature(group, notes, featureData));
 }
 
 function readFileFromCache(tempFile) {
@@ -414,6 +419,45 @@ function getVersions(browser) {
   return result;
 }
 
+function *iterateTests(data) {
+  if (data.res) {
+    yield [ null, data ];
+  }
+
+  if (data.subtests) {
+    for (let name in data.subtests) {
+      yield [ name, data.subtests[name] ];
+    }
+  }
+}
+
+function collectNotes(data) {
+  let result = new Map();
+
+  for (let featureData of data.tests) {
+    for (let [ testName, testData ] of iterateTests(featureData)) {
+      for (let browserId in testData.res) {
+        let testResult = testData.res[browserId];
+        if (testResult && typeof testResult === "object") {
+          let { note_id: id, note_html: html } = testResult;
+          if (!id) {
+            throw new Error(`${data.name}/${testName}/${browserId} no note id`);
+          }
+          if (html) {
+            if (result.has(id) && result.get(id) !== html) {
+              throw new Error(`${data.name} different HTML values for note ${id}`);
+            }
+            result.set(id, html);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+
 function cleanShort(short) {
   return short
     .replace(/-<.+?>/g, "")
@@ -421,8 +465,6 @@ function cleanShort(short) {
     .replace(/&lt;/g, "<")
     .trim();
 }
-
-
 
 Promise.all(files.map(processFile)).then(function (args) {
   let data = [];
@@ -478,7 +520,7 @@ function *iterVersionsByProject(versions) {
   }
 }
 
-function formatRes(group, res) {
+function formatRes(group, notes, res) {
   if (typeof res !== "object") throw new Error(`res is not an object`);
 
   let result = [];
@@ -527,6 +569,10 @@ function formatRes(group, res) {
         throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
       }
 
+      if (note && !notes.has(note)) {
+        throw new Error(`Unknown note id ${note}`);
+      }
+
       // TODO don't ignore note if !pass
       if (!pass) {
         firstNoSupportVersion = version;
@@ -550,43 +596,24 @@ function formatRes(group, res) {
   return result;
 }
 
-function formatTest(group, name, data) {
-  try {
-    return {
-      name,
-      exec: formatExec(data.exec),
-      res: formatRes(group, data.res),
-    };
-  }
-  catch (e) {
-    throw new Error(`while formating "${name || "main"}" test:\n${e.message}`);
-  }
-}
-
-function formatFeature(group, data) {
+function formatFeature(group, notes, featureData) {
   let tests = [];
-  if (data.res) {
+
+  for (let [ name, testData ] of iterateTests(featureData)) {
     try {
-      tests.push(formatTest(group, null, data));
+      tests.push({
+        name,
+        exec: formatExec(testData.exec),
+        res: formatRes(group, notes, testData.res),
+      });
     }
     catch (e) {
-      throw new Error(`while formating feature "${group.name} - ${data.name}":\n${e.message}`);
-    }
-  }
-
-  if (data.subtests) {
-    for (let name in data.subtests) {
-      try {
-        tests.push(formatTest(group, name, data.subtests[name]));
-      }
-      catch (e) {
-        throw new Error(`while formating feature "${group.name} - ${name}":\n${e.message}`);
-      }
+      throw new Error(`while formating feature "${group.name}/${featureData.name}/${name}":\n${e.message}`);
     }
   }
 
   return {
-    name: data.name,
+    name: featureData.name,
     group,
     tests,
   };
