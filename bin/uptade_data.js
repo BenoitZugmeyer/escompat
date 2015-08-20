@@ -67,27 +67,51 @@ function evalFile(name, body) {
   return module.exports;
 }
 
+class Context {
+
+  constructor(browserIdMap, notesMap) {
+    this._notes = notesMap;
+    this._browserIds = browserIdMap;
+  }
+
+  getBrowserId(version) {
+    return this._browserIds.get(version);
+  }
+
+  getNote(id) {
+    if (!this._notes.has(id)) throw new Error(`Unknown note ${id}`);
+    return this._notes.get(id);
+  }
+
+}
+
 function formatFile(fileData) {
   let group = {
     name: fileData.name,
     versions: [],
   };
 
+  let browserIdMap = new Map();
+
   for (let browserId in fileData.browsers) {
     let browser = fileData.browsers[browserId];
     let versions = getVersions(browser);
-    versions.forEach((v) => v.browserId = browserId);
-    group.versions.push(...versions);
+    for (let version of versions) {
+      browserIdMap.set(version, browserId);
+      group.versions.push(version);
+    }
   }
 
   sortVersions(group.versions);
 
-  let notes = collectNotes(fileData);
+  let notesMap = collectNotes(fileData);
 
-  notes.set("flagged", "This feature is behind a flag");
-  notes.set("strict_only", "Works in strict mode only");
+  notesMap.set("flagged", "This feature is behind a flag");
+  notesMap.set("strict_only", "Works in strict mode only");
 
-  return fileData.tests.map((featureData) => formatFeature(group, notes, featureData));
+  let context = new Context(browserIdMap, notesMap);
+
+  return fileData.tests.map((featureData) => formatFeature(context, group, featureData));
 }
 
 function readFileFromCache(tempFile) {
@@ -520,83 +544,80 @@ function *iterVersionsByProject(versions) {
   }
 }
 
-function formatRes(group, notes, res) {
+function formatSupports(context, group, res) {
   if (typeof res !== "object") throw new Error(`res is not an object`);
 
   let result = [];
 
   for (let [ project, versions ] of iterVersionsByProject(group.versions)) {
-    let firstFullSupportVersion;
-    let firstMixedSupportVersion;
-    let firstNoSupportVersion;
+    let supports = [];
+    let previousSupport = [];
 
-    for (let version of versions.reverse()) {
-      if (!res.hasOwnProperty(version.browserId)) continue;
-      let versionRes = res[version.browserId];
+    for (let version of versions) {
+      let browserId = context.getBrowserId(version);
+      if (!res.hasOwnProperty(browserId)) continue;
+      let versionRes = res[browserId];
       if (versionRes === null) continue; // not tested
-      let pass, note;
+
+      let support = { version };
 
       if (typeof versionRes === "boolean") {
-        pass = versionRes;
+        support.pass = versionRes;
       }
       else if (typeof versionRes === "object") {
         if (typeof versionRes.val === "boolean") {
-          pass = versionRes.val;
+          support.pass = versionRes.val;
         }
         else if (versionRes.val === "flagged" || versionRes.val === "needs-polyfill-or-native") {
           if (typeof versionRes.note_id !== "string") {
             throw new Error(`Missing note_id for flagged version resultat`);
           }
-          pass = true;
+          support.pass = true;
         }
         else {
           throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
         }
 
         if (typeof versionRes.note_id === "string") {
-          note = versionRes.note_id;
+          support.note = context.getNote(versionRes.note_id);
         }
       }
       else if (versionRes === "flagged") {
-        pass = true;
-        note = "flagged";
+        support.pass = true;
+        support.note = context.getNote("flagged");
       }
       else if (versionRes === "strict") {
-        pass = true;
-        note = "strict_only";
+        support.pass = true;
+        support.note = context.getNote("strict_only");
       }
       else {
         throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
       }
 
-      if (note && !notes.has(note)) {
-        throw new Error(`Unknown note id ${note}`);
-      }
-
-      // TODO don't ignore note if !pass
-      if (!pass) {
-        firstNoSupportVersion = version;
-      }
-      else if (note) {
-        firstMixedSupportVersion = version;
-      }
-      else {
-        firstFullSupportVersion = version;
+      if (!previousSupport || previousSupport.note !== support.note || previousSupport.pass !== support.pass) {
+        supports.push(support);
+        previousSupport = support;
       }
     }
 
-    result.push({
-      project,
-      firstFullSupportVersion,
-      firstMixedSupportVersion,
-      firstNoSupportVersion,
-    });
+    if (supports.length === 0) {
+      printErr(`Warning: No support for project ${project.name}`);
+    }
+
+    else {
+
+      // result.push({
+      //   project,
+      //   supports,
+      // });
+      result.push(supports);
+    }
   }
 
   return result;
 }
 
-function formatFeature(group, notes, featureData) {
+function formatFeature(context, group, featureData) {
   let tests = [];
 
   for (let [ name, testData ] of iterateTests(featureData)) {
@@ -604,7 +625,7 @@ function formatFeature(group, notes, featureData) {
       tests.push({
         name,
         exec: formatExec(testData.exec),
-        res: formatRes(group, notes, testData.res),
+        supports: formatSupports(context, group, testData.res),
       });
     }
     catch (e) {
