@@ -67,14 +67,14 @@ function evalFile(name, body) {
   return module.exports;
 }
 
-function formatFile(data) {
+function formatFile(fileData) {
   let group = {
-    name: data.name,
+    name: fileData.name,
     versions: [],
   };
 
-  for (let browserId in data.browsers) {
-    let browser = data.browsers[browserId];
+  for (let browserId in fileData.browsers) {
+    let browser = fileData.browsers[browserId];
     let versions = getVersions(browser);
     versions.forEach((v) => v.browserId = browserId);
     group.versions.push(...versions);
@@ -82,12 +82,12 @@ function formatFile(data) {
 
   sortVersions(group.versions);
 
-  let notes = collectNotes(data);
+  let notes = collectNotes(fileData);
 
   notes.set("flagged", "This feature is behind a flag");
   notes.set("strict_only", "Works in strict mode only");
 
-  return data.tests.map((featureData) => formatFeature(group, notes, featureData));
+  return fileData.tests.map((featureData) => formatFeature(group, notes, featureData));
 }
 
 function readFileFromCache(tempFile) {
@@ -419,33 +419,33 @@ function getVersions(browser) {
   return result;
 }
 
-function *iterateTests(data) {
-  if (data.res) {
-    yield [ null, data ];
+function *iterateTests(featureData) {
+  if (featureData.res) {
+    yield [ null, featureData ];
   }
 
-  if (data.subtests) {
-    for (let name in data.subtests) {
-      yield [ name, data.subtests[name] ];
+  if (featureData.subtests) {
+    for (let name in featureData.subtests) {
+      yield [ name, featureData.subtests[name] ];
     }
   }
 }
 
-function collectNotes(data) {
+function collectNotes(fileData) {
   let result = new Map();
 
-  for (let featureData of data.tests) {
+  for (let featureData of fileData.tests) {
     for (let [ testName, testData ] of iterateTests(featureData)) {
       for (let browserId in testData.res) {
         let testResult = testData.res[browserId];
         if (testResult && typeof testResult === "object") {
           let { note_id: id, note_html: html } = testResult;
           if (!id) {
-            throw new Error(`${data.name}/${testName}/${browserId} no note id`);
+            throw new Error(`${fileData.name}/${testName}/${browserId} no note id`);
           }
           if (html) {
             if (result.has(id) && result.get(id) !== html) {
-              throw new Error(`${data.name} different HTML values for note ${id}`);
+              throw new Error(`${fileData.name} different HTML values for note ${id}`);
             }
             result.set(id, html);
           }
@@ -467,9 +467,9 @@ function cleanShort(short) {
 }
 
 Promise.all(files.map(processFile)).then(function (args) {
-  let data = [];
-  for (let arg of args) data.push(...arg);
-  let result = compress(data);
+  let collectedData = [];
+  for (let arg of args) collectedData.push(...arg);
+  let result = compress(collectedData);
   print(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
   printErr(e.stack);
