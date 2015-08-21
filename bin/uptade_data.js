@@ -69,9 +69,26 @@ function evalFile(name, body) {
 
 class Context {
 
-  constructor(browserIdMap, notesMap) {
-    this._notes = notesMap;
-    this._browserIds = browserIdMap;
+  constructor({ browserIdMap, notesMap, group, parent, name }) {
+    this._notes = notesMap || parent._notes;
+    this._browserIds = browserIdMap || parent._browserIds;
+    this._group = group || parent._group;
+    this._parent = parent;
+    this._name = name || group.name;
+  }
+
+  child(name) {
+    return new this.constructor({ parent: this, name });
+  }
+
+  toString() {
+    let names = [];
+    let context = this;
+    while (context) {
+      names.unshift(context._name);
+      context = context._parent;
+    }
+    return names.join(" / ");
   }
 
   getBrowserId(version) {
@@ -79,8 +96,16 @@ class Context {
   }
 
   getNote(id) {
-    if (!this._notes.has(id)) throw new Error(`Unknown note ${id}`);
+    if (!this._notes.has(id)) this.error(`Unknown note ${id}`);
     return this._notes.get(id);
+  }
+
+  get group() {
+    return this._group;
+  }
+
+  error(text) {
+    throw new Error(`${this}: ${text}`);
   }
 
 }
@@ -109,9 +134,9 @@ function formatFile(fileData) {
   notesMap.set("flagged", "This feature is behind a flag");
   notesMap.set("strict_only", "Works in strict mode only");
 
-  let context = new Context(browserIdMap, notesMap);
+  let context = new Context({ browserIdMap, notesMap, group });
 
-  return fileData.tests.map((featureData) => formatFeature(context, group, featureData));
+  return fileData.tests.map((featureData) => formatFeature(context, featureData));
 }
 
 function readFileFromCache(tempFile) {
@@ -505,23 +530,23 @@ function unindent(str) {
   return str.replace(new RegExp(indentation[1], "g"), "");
 }
 
-function formatFn(fn) {
-  if (typeof fn !== "function") throw Error("fn is not a function");
+function formatFn(context, fn) {
+  if (typeof fn !== "function") context.error("fn is not a function");
   let match = String(fn).match(/^function\s*\(\)\s*\{(?:\s*\/\*)?([^]*?)(?:\*\/)?\s*}$/);
-  if (!match) throw new Error(`Can't parse exec ${fn}`);
+  if (!match) context.error(`Can't parse exec ${fn}`);
   return unindent(match[1]).trim();
 }
 
-function formatExec(exec) {
-  if (typeof exec === "function") return [ { script: formatFn(exec), type: null } ];
+function formatExec(context, exec) {
+  if (typeof exec === "function") return [ { script: formatFn(context, exec), type: null } ];
   if (Array.isArray(exec)) {
     return exec.map((exec) => ({
-      script: formatFn(exec.script),
+      script: formatFn(context, exec.script),
       type: exec.type || null,
     }));
   }
 
-  throw new Error(`exec has wrong type`);
+  context.error(`exec has wrong type`);
 }
 
 function *iterVersionsByProject(versions) {
@@ -544,12 +569,12 @@ function *iterVersionsByProject(versions) {
   }
 }
 
-function formatSupports(context, group, res) {
-  if (typeof res !== "object") throw new Error(`res is not an object`);
+function formatSupports(context, res) {
+  if (typeof res !== "object") context.error(`res is not an object`);
 
   let result = [];
 
-  for (let [ project, versions ] of iterVersionsByProject(group.versions)) {
+  for (let [ project, versions ] of iterVersionsByProject(context.group.versions)) {
     let supports = [];
     let previousSupport = [];
 
@@ -570,12 +595,12 @@ function formatSupports(context, group, res) {
         }
         else if (versionRes.val === "flagged" || versionRes.val === "needs-polyfill-or-native") {
           if (typeof versionRes.note_id !== "string") {
-            throw new Error(`Missing note_id for flagged version resultat`);
+            context.error(`Missing note_id for flagged version resultat`);
           }
           support.pass = true;
         }
         else {
-          throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+          context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
         }
 
         if (typeof versionRes.note_id === "string") {
@@ -591,7 +616,7 @@ function formatSupports(context, group, res) {
         support.note = context.getNote("strict_only");
       }
       else {
-        throw new Error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+        context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
       }
 
       if (!previousSupport || previousSupport.note !== support.note || previousSupport.pass !== support.pass) {
@@ -601,7 +626,7 @@ function formatSupports(context, group, res) {
     }
 
     if (supports.length === 0) {
-      printErr(`Warning: No support for project ${project.name}`);
+      printErr(`Warning: ${context}: No support for project ${project.name}`);
     }
 
     else {
@@ -617,25 +642,22 @@ function formatSupports(context, group, res) {
   return result;
 }
 
-function formatFeature(context, group, featureData) {
+function formatFeature(context, featureData) {
+  context = context.child(featureData.name);
   let tests = [];
 
   for (let [ name, testData ] of iterateTests(featureData)) {
-    try {
-      tests.push({
-        name,
-        exec: formatExec(testData.exec),
-        supports: formatSupports(context, group, testData.res),
-      });
-    }
-    catch (e) {
-      throw new Error(`while formating feature "${group.name}/${featureData.name}/${name}":\n${e.message}`);
-    }
+    let testContext = context.child(name || "main");
+    tests.push({
+      name,
+      exec: formatExec(testContext, testData.exec),
+      supports: formatSupports(testContext, testData.res),
+    });
   }
 
   return {
     name: featureData.name,
-    group,
+    group: context.group,
     tests,
   };
 }
