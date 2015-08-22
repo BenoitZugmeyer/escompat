@@ -97,7 +97,7 @@ export default class Feature extends Component {
     return (
       <div ss="tests">
         {this.props.feature.tests.map(
-          (test, i) => <Test key={i} test={test} />
+          (test, i) => <Test key={i} test={test} group={this.props.feature.group} />
         )}
       </div>
     );

@@ -284,6 +284,7 @@ let projects = {
     type: "browser",
     runtime: runtimes.chakra,
     link: "http://windows.microsoft.com/en-us/internet-explorer/browser-ie",
+    short: "IE",
   },
 
   iojs: {
@@ -327,6 +328,7 @@ let projects = {
     type: "browser",
     runtime: runtimes.other,
     link: "http://www.opera.com/",
+    short: "OP (legacy)",
   },
 
   opera: {
@@ -614,7 +616,6 @@ function formatSupports(context, res) {
   let result = [];
 
   for (let versions of iterVersionsByProject(context.group.versions)) {
-    let supports = [];
     let previousSupport = [];
 
     for (let version of versions) {
@@ -629,15 +630,11 @@ function formatSupports(context, res) {
           previousSupport.pass !== support.pass) {
 
         if (support.pass || support.note) {
-          supports.push(support);
+          result.push(support);
         }
 
         previousSupport = support;
       }
-    }
-
-    if (supports.length > 0) {
-      result.push(supports);
     }
   }
 

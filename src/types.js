@@ -29,10 +29,11 @@ let test =
       script: string.isRequired,
       type: string,
     })),
-    supports: arrayOf(arrayOf(shape({
+    supports: arrayOf(shape({
       note: string,
       pass: bool.isRequired,
-    }))),
+      version: version.isRequired,
+    })),
     name: string,
   });
 

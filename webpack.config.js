@@ -4,6 +4,10 @@ import webpack from "webpack";
 
 let getPath = (fullPath) => path.resolve(__dirname, ...fullPath.split("/"));
 
+
+let svgoConfig = {
+};
+
 let config = {
   context: getPath("src"),
   entry: [ "./main" ],
@@ -29,6 +33,13 @@ let config = {
           stage: 0,
           cacheDirectory: true,
         },
+      },
+      {
+        test: /\.svg$/,
+        loaders: [
+          "file-loader",
+          "svgo-loader?" + JSON.stringify(svgoConfig),
+        ],
       },
     ],
   },
