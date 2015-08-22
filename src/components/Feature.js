@@ -1,6 +1,7 @@
 import React from "react";
 import SansSel from "../sans-sel";
 import Component from "../Component";
+import Test from "./Test";
 
 @SansSel
 export default class Feature extends Component {
@@ -65,19 +66,6 @@ export default class Feature extends Component {
       paddingBottom: "10px",
     },
 
-    exec: {},
-
-    execName: {
-      padding: "10px 10px 0",
-    },
-
-    execScript: {
-      margin: "0",
-      padding: "10px",
-      whiteSpace: "pre-wrap",
-      backgroundColor: "#eee",
-    },
-
   };
 
   constructor(props) {
@@ -105,13 +93,10 @@ export default class Feature extends Component {
   }
 
   renderTests() {
-    let tests = this.props.feature.tests;
-    if (tests.length === 1) return this.renderTest(tests[0]);
-
     return (
       <div ss="tests">
-        {tests.map(
-          (test, i) => <div key={i}>{this.renderTest(test)}</div>
+        {this.props.feature.tests.map(
+          (test, i) => <Test key={i} test={test} />
         )}
       </div>
     );
