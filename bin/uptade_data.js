@@ -580,8 +580,7 @@ function formatSupports(context, res) {
 
     for (let version of versions) {
       let browserId = context.getBrowserId(version);
-      if (!res.hasOwnProperty(browserId)) continue;
-      let versionRes = res[browserId];
+      let versionRes = res.hasOwnProperty(browserId) ? res[browserId] : false;
       if (versionRes === null) continue; // not tested
 
       let support = { version };
@@ -620,7 +619,9 @@ function formatSupports(context, res) {
       }
 
       if (!previousSupport || previousSupport.note !== support.note || previousSupport.pass !== support.pass) {
-        supports.push(support);
+        if (support.pass || support.note) {
+          supports.push(support);
+        }
         previousSupport = support;
       }
     }
@@ -628,13 +629,7 @@ function formatSupports(context, res) {
     if (supports.length === 0) {
       printErr(`Warning: ${context}: No support for project ${project.name}`);
     }
-
     else {
-
-      // result.push({
-      //   project,
-      //   supports,
-      // });
       result.push(supports);
     }
   }
