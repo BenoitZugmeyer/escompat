@@ -1,12 +1,13 @@
 import React from "react";
 import SansSel from "../sans-sel";
+import types from "../types";
 
 @SansSel
 export default class SearchInput extends React.Component {
 
   static propTypes = {
-    initialValue: React.PropTypes.string,
-    onChange: React.PropTypes.func,
+    initialValue: types.string,
+    onChange: types.func,
   };
 
   static styles = {

@@ -2,12 +2,13 @@ import React from "react";
 import SansSel from "../sans-sel";
 import Component from "../Component";
 import Test from "./Test";
+import types from "../types";
 
 @SansSel
 export default class Feature extends Component {
 
   static propTypes = {
-    feature: React.PropTypes.object.isRequired,
+    feature: types.feature.isRequired,
   };
 
   static styles = {

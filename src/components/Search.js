@@ -4,15 +4,18 @@ import search from "../search";
 import Component from "../Component";
 import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
+import types from "../types";
 
 export default class Search extends Component {
 
   static propTypes = {
-    params: React.PropTypes.object.isRequired,
+    params: types.shape({
+      query: types.string,
+    }).isRequired,
   };
 
   static contextTypes = {
-    router: React.PropTypes.func,
+    router: types.func,
   };
 
   constructor(props) {

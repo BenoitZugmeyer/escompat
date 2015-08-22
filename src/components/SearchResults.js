@@ -1,13 +1,14 @@
 import React from "react";
 import Feature from "./Feature";
 import SansSel from "../sans-sel";
+import types from "../types";
 
 @SansSel
 export default class SearchResults extends React.Component {
 
   static propTypes = {
-    hasQuery: React.PropTypes.boolean,
-    results: React.PropTypes.array.isRequired,
+    hasQuery: types.bool.isRequired,
+    results: types.arrayOf(types.feature).isRequired,
   };
 
   static styles = {

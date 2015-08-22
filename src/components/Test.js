@@ -1,13 +1,14 @@
 import React from "react";
 import Component from "../Component";
 import SansSel from "../sans-sel";
+import types from "../types";
 
 
 @SansSel
 export default class Test extends Component {
 
   static propTypes = {
-    test: React.PropTypes.instanceOf(TestClass).isRequired,
+    test: types.test.isRequired,
   };
 
   static styles = {
