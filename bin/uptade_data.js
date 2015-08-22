@@ -626,10 +626,7 @@ function formatSupports(context, res) {
       }
     }
 
-    if (supports.length === 0) {
-      printErr(`Warning: ${context}: No support for project ${project.name}`);
-    }
-    else {
+    if (supports.length > 0) {
       result.push(supports);
     }
   }
