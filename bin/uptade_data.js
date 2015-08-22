@@ -555,7 +555,7 @@ function *iterVersionsByProject(versions) {
   for (let version of versions) {
     if (!previousProject || previousProject !== version.project) {
       if (previousProject) {
-        yield [ previousProject, projectVersions ];
+        yield projectVersions;
       }
       previousProject = version.project;
       projectVersions = [ version ];
@@ -565,8 +565,47 @@ function *iterVersionsByProject(versions) {
     }
   }
   if (previousProject) {
-    yield [ previousProject, projectVersions ];
+    yield projectVersions;
   }
+}
+
+function formatSupport(context, version, versionRes) {
+  let pass, note;
+
+  if (typeof versionRes === "boolean") {
+    pass = versionRes;
+  }
+  else if (typeof versionRes === "object") {
+    if (typeof versionRes.val === "boolean") {
+      pass = versionRes.val;
+    }
+    else if (versionRes.val === "flagged" || versionRes.val === "needs-polyfill-or-native") {
+      if (typeof versionRes.note_id !== "string") {
+        context.error(`Missing note_id for flagged version resultat`);
+      }
+      pass = true;
+    }
+    else {
+      context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+    }
+
+    if (typeof versionRes.note_id === "string") {
+      note = context.getNote(versionRes.note_id);
+    }
+  }
+  else if (versionRes === "flagged") {
+    pass = true;
+    note = context.getNote("flagged");
+  }
+  else if (versionRes === "strict") {
+    pass = true;
+    note = context.getNote("strict_only");
+  }
+  else {
+    context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
+  }
+
+  return { pass, note, version };
 }
 
 function formatSupports(context, res) {
@@ -574,7 +613,7 @@ function formatSupports(context, res) {
 
   let result = [];
 
-  for (let [ project, versions ] of iterVersionsByProject(context.group.versions)) {
+  for (let versions of iterVersionsByProject(context.group.versions)) {
     let supports = [];
     let previousSupport = [];
 
@@ -583,45 +622,16 @@ function formatSupports(context, res) {
       let versionRes = res.hasOwnProperty(browserId) ? res[browserId] : false;
       if (versionRes === null) continue; // not tested
 
-      let support = { version };
+      let support = formatSupport(context.child(browserId), version, versionRes);
 
-      if (typeof versionRes === "boolean") {
-        support.pass = versionRes;
-      }
-      else if (typeof versionRes === "object") {
-        if (typeof versionRes.val === "boolean") {
-          support.pass = versionRes.val;
-        }
-        else if (versionRes.val === "flagged" || versionRes.val === "needs-polyfill-or-native") {
-          if (typeof versionRes.note_id !== "string") {
-            context.error(`Missing note_id for flagged version resultat`);
-          }
-          support.pass = true;
-        }
-        else {
-          context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
-        }
+      if (!previousSupport ||
+          previousSupport.note !== support.note ||
+          previousSupport.pass !== support.pass) {
 
-        if (typeof versionRes.note_id === "string") {
-          support.note = context.getNote(versionRes.note_id);
-        }
-      }
-      else if (versionRes === "flagged") {
-        support.pass = true;
-        support.note = context.getNote("flagged");
-      }
-      else if (versionRes === "strict") {
-        support.pass = true;
-        support.note = context.getNote("strict_only");
-      }
-      else {
-        context.error(`Invalid pass type for ${JSON.stringify(versionRes)}`);
-      }
-
-      if (!previousSupport || previousSupport.note !== support.note || previousSupport.pass !== support.pass) {
         if (support.pass || support.note) {
           supports.push(support);
         }
+
         previousSupport = support;
       }
     }
