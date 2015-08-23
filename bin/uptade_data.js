@@ -323,14 +323,6 @@ let projects = {
     link: "https://nodejs.org/",
   },
 
-  operalegacy: {
-    name: "Opera (legacy)",
-    type: "browser",
-    runtime: runtimes.other,
-    link: "http://www.opera.com/",
-    short: "OP (legacy)",
-  },
-
   opera: {
     name: "Opera",
     type: "browser",
@@ -466,10 +458,6 @@ function getVersions(browser) {
     }
 
     let number = match ? match[2] : null;
-
-    if (project === projects.opera && parseInt(number, 10) < 15) {
-      project = projects.operalegacy;
-    }
 
     result.push({
       project,
