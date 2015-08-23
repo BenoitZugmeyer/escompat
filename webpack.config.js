@@ -37,7 +37,7 @@ let config = {
       {
         test: /\.svg$/,
         loaders: [
-          "file-loader",
+          "file-loader?name=[path][name].[ext]?[hash]",
           "svgo-loader?" + JSON.stringify(svgoConfig),
         ],
       },
