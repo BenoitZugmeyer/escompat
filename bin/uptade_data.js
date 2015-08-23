@@ -386,6 +386,14 @@ let projects = {
 
 };
 
+let typesOrder = [
+  "browser",
+  "scriptable runtime",
+  "runtime",
+  "transpiler",
+  "shim",
+];
+
 function getProjectByShortName(short) {
   for (let key in projects) {
     if (projects[key].short === short || projects[key].name === short || key === short.toLowerCase()) {
@@ -421,11 +429,13 @@ function sortVersions(versions) {
     let nameA = va.project.name.toLowerCase();
     let nameB = vb.project.name.toLowerCase();
 
-    return (
-      nameA === nameB ? compareVersionNumbers(va.number, vb.number) :
-      nameA > nameB ? 1 :
-        -1
-    );
+    if (nameA === nameB) return compareVersionNumbers(va.number, vb.number);
+
+    if (va.project.type !== vb.project.type) {
+      return typesOrder.indexOf(va.project.type) - typesOrder.indexOf(vb.project.type);
+    }
+
+    return nameA > nameB ? 1 : -1;
   });
 }
 
@@ -449,6 +459,10 @@ function getVersions(browser) {
     }
     else {
       throw new Error(`No project found for ${s}`);
+    }
+
+    if (typesOrder.indexOf(project.type) < 0) {
+      throw new Error(`Unknown project type ${project.type}`);
     }
 
     let number = match ? match[2] : null;

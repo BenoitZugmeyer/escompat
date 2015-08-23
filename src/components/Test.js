@@ -2,7 +2,7 @@ import React from "react";
 import Component from "../Component";
 import SansSel from "../sans-sel";
 import types from "../types";
-import warning from "../icons/warning.svg";
+import warning from "../icons/warning.svg"; // eslint-disable-line import/default
 
 
 @SansSel
