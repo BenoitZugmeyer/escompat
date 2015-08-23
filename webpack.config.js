@@ -14,7 +14,7 @@ let config = {
   output: {
     path: getPath("dist"),
     filename: "main.js",
-    publicPath: "/dist/",
+    publicPath: "dist/",
   },
   plugins: [
     new webpack.DefinePlugin({
