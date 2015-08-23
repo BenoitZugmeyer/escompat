@@ -1,6 +1,6 @@
 import React from "react";
 
-let { shape, arrayOf, string, bool } = React.PropTypes;
+let { shape, arrayOf, string, bool, oneOf, oneOfType } = React.PropTypes;
 
 let runtime =
   shape({
@@ -23,17 +23,20 @@ let version =
     obsolete: bool.isRequired,
   });
 
+let support =
+  shape({
+    note: oneOfType([ bool, string ]),
+    pass: oneOf([ true, false, "mixed" ]).isRequired,
+    version: version.isRequired,
+  });
+
 let test =
   shape({
     exec: arrayOf(shape({
       script: string.isRequired,
       type: string,
     })),
-    supports: arrayOf(shape({
-      note: string,
-      pass: bool.isRequired,
-      version: version.isRequired,
-    })),
+    supports: arrayOf(support),
     name: string,
   });
 
@@ -54,6 +57,7 @@ export default {
   runtime,
   project,
   version,
+  support,
   test,
   group,
   feature,

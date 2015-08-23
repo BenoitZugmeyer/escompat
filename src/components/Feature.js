@@ -2,7 +2,9 @@ import React from "react";
 import SansSel from "../sans-sel";
 import Component from "../Component";
 import Test from "./Test";
+import Supports from "./Supports";
 import types from "../types";
+import { getSupportsByProject, getReferenceSupport } from "../supports";
 
 @SansSel
 export default class Feature extends Component {
@@ -80,6 +82,38 @@ export default class Feature extends Component {
     this.setState((previous) => ({ open: !previous.open }));
   }
 
+  computeSupports() {
+    let feature = this.props.feature;
+    let versions = feature.group.versions;
+
+    function compareVersions(versions, va, vb) {
+      if (va === vb) return 0;
+      return versions.indexOf(va) - versions.indexOf(vb);
+    }
+
+    let map = new Map();
+    feature.tests.forEach((test) => {
+      getSupportsByProject(versions, test.supports).forEach(({ project, supports }) => {
+        let support = getReferenceSupport(supports);
+        let previousSupport = map.get(project);
+        if (!previousSupport) map.set(project, support);
+        else {
+          let newVersionIsMoreRecent = compareVersions(versions, previousSupport.version, support.version) < 0;
+          let version =
+            support.pass && newVersionIsMoreRecent ?
+              support.version :
+              previousSupport.version;
+          let pass = support.pass === previousSupport.pass ? support.pass : "mixed";
+          let note = Boolean(support.note || previousSupport.note);
+
+          map.set(project, { pass, version, note });
+        }
+      });
+    });
+
+    return [for (value of map.values()) value];
+  }
+
   renderTest(test) {
     return (
       <div ss="exec">
@@ -105,6 +139,7 @@ export default class Feature extends Component {
 
   render() {
     let feature = this.props.feature;
+    let supports = this.computeSupports();
 
     return (
       <div ss="root">
@@ -112,7 +147,9 @@ export default class Feature extends Component {
           <span ss="group">{feature.group.name}</span>
           <span ss="nameSupport">
             <span ss="name">{feature.name}</span>
-            <span ss="support"></span>
+            <span ss="support">
+              <Supports group={feature.group} supports={supports} />
+            </span>
           </span>
         </div>
         {this.state.open && this.renderTests()}
