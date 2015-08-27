@@ -14,7 +14,7 @@ export default function search(query) {
 
   let scores = new Map();
   let result = [];
-  data.forEach((feature, i) => {
+  data.features.forEach((feature, i) => {
     let score = query.match({
       name: feature.name,
       group: feature.group.name,

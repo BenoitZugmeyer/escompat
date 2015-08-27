@@ -4,6 +4,7 @@ import search from "../search";
 import Component from "../Component";
 import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
+import ProjectSelector from "./ProjectSelector";
 import types from "../types";
 
 export default class Search extends Component {
@@ -40,6 +41,7 @@ export default class Search extends Component {
     return (
       <div>
         <SearchInput initialValue={query} onChange={(value) => this.search(value)} />
+        <ProjectSelector />
         <SearchResults results={this.state.searchResults} hasQuery={Boolean(query)} />
       </div>
     );

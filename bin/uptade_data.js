@@ -520,9 +520,13 @@ function cleanShort(short) {
 }
 
 Promise.all(files.map(processFile)).then(function (args) {
-  let collectedData = [];
-  for (let arg of args) collectedData.push(...arg);
-  let result = compress(collectedData);
+  let features = [];
+  for (let arg of args) features.push(...arg);
+
+  let result = compress({
+    features,
+    projects,
+  });
   print(`${result.declarations}\nmodule.exports = ${result.body}`);
 }).catch(function (e) {
   printErr(e.stack);
