@@ -2,6 +2,7 @@ import React from "react";
 import Feature from "./Feature";
 import SansSel from "../sans-sel";
 import types from "../types";
+import upArrow from "../icons/upArrow.svg"; // eslint-disable-line import/default
 
 @SansSel
 export default class SearchResults extends React.Component {
@@ -20,10 +21,15 @@ export default class SearchResults extends React.Component {
     },
 
     upArrow: {
-      fontSize: "2em",
       display: "inline-block",
-      verticalAlign: "bottom",
+      verticalAlign: "top",
       marginLeft: "10px",
+      position: "relative",
+      top: "-13px",
+      backgroundImage: `url(${upArrow})`,
+      height: "30px",
+      width: "30px",
+
     },
   };
 
@@ -36,7 +42,7 @@ export default class SearchResults extends React.Component {
   }
 
   render() {
-    if (!this.props.hasQuery) return this.renderMessage(<span>Type a query to begin<span ss="upArrow">⤴</span></span>);
+    if (!this.props.hasQuery) return this.renderMessage(<span>Type a query to begin<span ss="upArrow" /></span>);
     if (!this.props.results.length) return this.renderMessage("No result");
 
     let results = this.props.results.slice(0, 20);
