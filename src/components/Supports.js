@@ -2,7 +2,9 @@ import React from "react";
 import Component from "../Component";
 import SansSel from "../sans-sel";
 import types from "../types";
-import warning from "../icons/warning.svg"; // eslint-disable-line import/default
+import warning from "../icons/warning.svg";
+import { apply, collect } from "../itertools";
+
 import { getSupportsByProject, getReferenceSupport } from "../supports";
 
 
@@ -10,14 +12,15 @@ import { getSupportsByProject, getReferenceSupport } from "../supports";
 export default class Supports extends Component {
 
   static propTypes = {
-    group: types.group.isRequired,
     supports: types.arrayOf(types.support).isRequired,
+    versions: types.arrayOf(types.version).isRequired,
   };
 
   static styles = {
     root: {
       display: "flex",
       flexWrap: "wrap",
+      justifyContent: "flex-end",
     },
 
     support: {
@@ -77,13 +80,11 @@ export default class Supports extends Component {
   }
 
   render() {
-    let supportsByProject = getSupportsByProject(this.props.group.versions, this.props.supports);
+    let supportsByProject = getSupportsByProject(this.props.versions, this.props.supports);
 
     return (
       <div ss="root">
-        {supportsByProject.map(
-          ({ project, supports }) => this.renderSupport(project, supports)
-        )}
+        {supportsByProject::apply(::this.renderSupport)::collect()}
       </div>
     );
   }

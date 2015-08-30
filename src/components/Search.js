@@ -6,6 +6,7 @@ import SearchInput from "./SearchInput";
 import SearchResults from "./SearchResults";
 import ProjectSelector from "./ProjectSelector";
 import types from "../types";
+import { projects } from "../data";
 
 export default class Search extends Component {
 
@@ -25,6 +26,7 @@ export default class Search extends Component {
     this.state = {
       query,
       searchResults: search(query),
+      selectedProjects: new Set([for (project of projects) if (project.type === "browser") project]),
     };
   }
 
@@ -41,8 +43,10 @@ export default class Search extends Component {
     return (
       <div>
         <SearchInput initialValue={query} onChange={(value) => this.search(value)} />
-        <ProjectSelector />
-        <SearchResults results={this.state.searchResults} hasQuery={Boolean(query)} />
+        <ProjectSelector
+          initialSelectedProjects={this.state.selectedProjects}
+          onChange={(selectedProjects) => this.setState({ selectedProjects })} />
+        <SearchResults results={this.state.searchResults} hasQuery={Boolean(query)} projects={this.state.selectedProjects} />
       </div>
     );
 

@@ -27,7 +27,7 @@
     "update": "babel-node bin/uptade_data.js > src/data.js",
     "serve": "babel-node bin/hot_server.js",
     "lint": "eslint src bin webpack.config.js || true",
-    "test": "jest"
+    "test": "BABEL_JEST_STAGE=0 jest"
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest"

@@ -202,181 +202,191 @@ let runtimes = {
   },
 };
 
-let projects = {
-
-  babel: {
+let projects = [
+  {
     name: "Babel",
+    short: [ "Babel + core-js" ],
     type: "transpiler",
     link: "http://babeljs.io/",
-    short: "Babel + core-js",
   },
 
-  besen: {
+  {
     name: "BESEN",
+    short: [],
     type: "runtime",
     runtime: runtimes.other,
     link: "https://github.com/BeRo1985/besen",
   },
 
-  chrome: {
+  {
     name: "Chromium",
+    short: [ "CH" ],
     type: "browser",
     runtime: runtimes.v8,
     link: "http://www.chromium.org/Home",
-    short: "CH",
   },
 
-  closure: {
+  {
     name: "Closure",
+    short: [],
     type: "transpiler",
     link: "https://developers.google.com/closure/compiler/",
   },
 
-  edge: {
+  {
     name: "Edge",
+    short: [],
     type: "browser",
     runtime: runtimes.chakra,
     link: "https://www.microsoft.com/windows/browser-for-doing",
   },
 
-  ejs: {
+  {
     name: "Echo JS",
+    short: [ "EJS" ],
     type: "runtime",
     runtime: runtimes.other,
     link: "https://github.com/toshok/echojs",
   },
 
-  es5shim: {
+  {
     name: "es5-shim",
+    short: [],
     type: "shim",
     link: "https://github.com/es-shims/es5-shim",
   },
 
-  es6shim: {
+  {
     name: "es6-shim",
+    short: [ "es6shim" ],
     type: "shim",
     link: "https://github.com/es-shims/es6-shim",
   },
 
-  es6tr: {
+  {
     name: "es6-transpiler",
+    short: [ "ES6 Transpiler" ],
     type: "transpiler",
     link: "https://github.com/termi/es6-transpiler",
-    short: "ES6 Transpiler",
   },
 
-  es7shim: {
+  {
     name: "es7-shim",
+    short: [],
     type: "shim",
     link: "https://github.com/es-shims/es7-shim",
   },
 
-  firefox: {
+  {
     name: "Firefox",
+    short: [ "FF" ],
     type: "browser",
     runtime: runtimes.spiderMonkey,
     link: "https://www.mozilla.org/en-US/firefox/new/",
-    short: "FF",
   },
 
-  ie: {
+  {
     name: "Internet Explorer",
+    short: [ "IE" ],
     type: "browser",
     runtime: runtimes.chakra,
     link: "http://windows.microsoft.com/en-us/internet-explorer/browser-ie",
-    short: "IE",
   },
 
-  iojs: {
+  {
     name: "io.js",
+    short: [ "io" ],
     type: "scriptable runtime",
     runtime: runtimes.v8,
     link: "https://iojs.org/",
-    short: "io",
   },
 
-  ios: {
+  {
     name: "Safari iOS",
+    short: [ "iOS" ],
     type: "browser",
     runtime: runtimes.nitro,
     link: "https://www.apple.com/ios/",
   },
 
-  jsx: {
+  {
     name: "JS Transform",
+    short: [ "JSX" ],
     type: "transpiler",
     link: "https://github.com/facebook/jstransform",
   },
 
-  konq: {
+  {
     name: "Konqueror",
+    short: [ "Konq", "KQ" ],
     type: "browser",
     runtime: runtimes.other,
     link: "https://konqueror.org/",
-    short: "KQ",
   },
 
-  node: {
+  {
     name: "Node.js",
+    short: [ "Node" ],
     type: "scriptable runtime",
     runtime: runtimes.v8,
     link: "https://nodejs.org/",
   },
 
-  opera: {
+  {
     name: "Opera",
+    short: [ "OP" ],
     type: "browser",
     runtime: runtimes.v8,
     link: "http://www.opera.com/",
-    short: "OP",
   },
 
-  phantom: {
+  {
     name: "PhantomJS",
+    short: [ "Phantom", "PJS" ],
     type: "scriptable runtime",
     runtime: runtimes.jsc,
     link: "http://phantomjs.org/",
-    short: "PJS",
   },
 
-  rhino: {
+  {
     name: "Rhino",
+    short: [ "RH" ],
     type: "scriptable runtime",
     runtime: runtimes.other,
     link: "https://github.com/mozilla/rhino",
-    short: "RH",
   },
 
-  safari: {
+  {
     name: "Safari",
+    short: [ "SF" ],
     type: "browser",
     runtime: runtimes.nitro,
     link: "https://www.apple.com/safari/",
-    short: "SF",
   },
 
-  tr: {
+  {
     name: "Traceur",
+    short: [],
     type: "transpiler",
     link: "https://github.com/google/traceur-compiler",
   },
 
-  typescript: {
+  {
     name: "TypeScript",
+    short: [ "TypeScript + core-js" ],
     type: "transpiler",
     link: "http://www.typescriptlang.org/",
-    short: "TypeScript + core-js",
   },
 
-  webkit: {
+  {
     name: "WebKit",
+    short: [ "WK" ],
     type: "runtime",
     runtime: runtimes.jsc,
     link: "https://www.webkit.org/",
-    short: "WK",
   },
 
-};
+];
 
 let typesOrder = [
   "browser",
@@ -386,11 +396,19 @@ let typesOrder = [
   "shim",
 ];
 
+function compareProjects(pa, pb) {
+  if (pa.type !== pb.type) {
+    return typesOrder.indexOf(pa.type) - typesOrder.indexOf(pb.type);
+  }
+
+  return pa.name.toLowerCase() > pb.name.toLowerCase() ? 1 : -1;
+}
+
+projects.sort(compareProjects);
+
 function getProjectByShortName(short) {
-  for (let key in projects) {
-    if (projects[key].short === short || projects[key].name === short || key === short.toLowerCase()) {
-      return projects[key];
-    }
+  for (let project of projects) {
+    if (project.short.includes(short) || project.name === short) return project;
   }
   throw new Error(`Project with short name ${short} not found`);
 }
@@ -418,16 +436,7 @@ function sortVersions(versions) {
   }
 
   versions.sort((va, vb) => {
-    let nameA = va.project.name.toLowerCase();
-    let nameB = vb.project.name.toLowerCase();
-
-    if (nameA === nameB) return compareVersionNumbers(va.number, vb.number);
-
-    if (va.project.type !== vb.project.type) {
-      return typesOrder.indexOf(va.project.type) - typesOrder.indexOf(vb.project.type);
-    }
-
-    return nameA > nameB ? 1 : -1;
+    return compareProjects(va.project, vb.project) || compareVersionNumbers(va.number, vb.number);
   });
 }
 

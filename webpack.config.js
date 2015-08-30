@@ -14,7 +14,7 @@ let config = {
   output: {
     path: getPath("dist"),
     filename: "main.js",
-    publicPath: "dist/",
+    publicPath: "/dist/",
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -32,6 +32,7 @@ let config = {
         query: {
           stage: 0,
           cacheDirectory: true,
+          loose: true,
         },
       },
       {
@@ -54,6 +55,9 @@ if (process.env.NODE_ENV === "production") {
       },
     })
   );
+}
+else {
+  config.devtool = "source-map";
 }
 
 export default config;

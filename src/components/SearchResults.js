@@ -2,22 +2,25 @@ import React from "react";
 import Feature from "./Feature";
 import SansSel from "../sans-sel";
 import types from "../types";
-import upArrow from "../icons/upArrow.svg"; // eslint-disable-line import/default
+import upArrow from "../icons/upArrow.svg";
 
 @SansSel
 export default class SearchResults extends React.Component {
 
   static propTypes = {
     hasQuery: types.bool.isRequired,
+    projects: types.setOf(types.project).isRequired,
     results: types.arrayOf(types.feature).isRequired,
   };
 
   static styles = {
+
     message: {
       textAlign: "center",
       fontSize: "1.5em",
       padding: "10px",
       color: "#888",
+      marginTop: "30px",
     },
 
     upArrow: {
@@ -29,8 +32,8 @@ export default class SearchResults extends React.Component {
       backgroundImage: `url(${upArrow})`,
       height: "30px",
       width: "30px",
-
     },
+
   };
 
   renderMessage(message) {
@@ -48,7 +51,7 @@ export default class SearchResults extends React.Component {
     let results = this.props.results.slice(0, 20);
     return (
       <div>
-        {results.map((result) => <Feature key={result.name} feature={result} />)}
+        {results.map((result) => <Feature key={result.name} feature={result} projects={this.props.projects} />)}
       </div>
     );
   }

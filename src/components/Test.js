@@ -9,8 +9,8 @@ import Supports from "./Supports";
 export default class Test extends Component {
 
   static propTypes = {
-    group: types.group.isRequired,
     test: types.test.isRequired,
+    versions: types.arrayOf(types.version).isRequired,
   };
 
   static styles = {
@@ -18,7 +18,8 @@ export default class Test extends Component {
     },
 
     name: {
-      padding: "10px 10px 0",
+      padding: "10px 5px 0",
+      display: "flex",
     },
 
     script: {
@@ -26,6 +27,11 @@ export default class Test extends Component {
       padding: "10px",
       whiteSpace: "pre-wrap",
       backgroundColor: "#eee",
+    },
+
+    supports: {
+      flex: 1,
+      minWidth: "20ch",
     },
 
   };
@@ -36,8 +42,10 @@ export default class Test extends Component {
     return (
       <div ss="root" onClick={() => console.log(test)}>
         <div ss="name">
-          {test.name}
-          <Supports group={this.props.group} supports={test.supports} />
+          <div>{test.name}</div>
+          <div ss="supports">
+            <Supports supports={test.supports} versions={this.props.versions} />
+          </div>
         </div>
         {test.exec.map(
           (exec, i) => (

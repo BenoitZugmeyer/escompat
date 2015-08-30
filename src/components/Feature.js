@@ -11,6 +11,7 @@ export default class Feature extends Component {
 
   static propTypes = {
     feature: types.feature.isRequired,
+    projects: types.setOf(types.project).isRequired,
   };
 
   static styles = {
@@ -60,7 +61,6 @@ export default class Feature extends Component {
     support: {
       inherit: "cell",
 
-      textAlign: "right",
       flex: 1,
       minWidth: "20ch",
     },
@@ -76,29 +76,33 @@ export default class Feature extends Component {
     this.state = {
       open: false,
     };
+    this._versions = props.feature.group.versions.filter((version) => props.projects.has(version.project));
   }
 
   toggle() {
     this.setState((previous) => ({ open: !previous.open }));
   }
 
+  componentWillReceiveProps(nextProps) {
+    this._versions = nextProps.feature.group.versions.filter((version) => nextProps.projects.has(version.project));
+  }
+
   computeSupports() {
     let feature = this.props.feature;
-    let versions = feature.group.versions;
 
-    function compareVersions(versions, va, vb) {
+    let compareVersions = (va, vb) => {
       if (va === vb) return 0;
-      return versions.indexOf(va) - versions.indexOf(vb);
-    }
+      return this._versions.indexOf(va) - this._versions.indexOf(vb);
+    };
 
     let map = new Map();
     feature.tests.forEach((test) => {
-      getSupportsByProject(versions, test.supports).forEach(({ project, supports }) => {
+      for (let [ project, supports ] of getSupportsByProject(this._versions, test.supports)) {
         let support = getReferenceSupport(supports);
         let previousSupport = map.get(project);
         if (!previousSupport) map.set(project, support);
         else {
-          let newVersionIsMoreRecent = compareVersions(versions, previousSupport.version, support.version) < 0;
+          let newVersionIsMoreRecent = compareVersions(previousSupport.version, support.version) < 0;
           let version =
             support.pass && newVersionIsMoreRecent ?
               support.version :
@@ -108,7 +112,7 @@ export default class Feature extends Component {
 
           map.set(project, { pass, version, note });
         }
-      });
+      }
     });
 
     return [for (value of map.values()) value];
@@ -131,7 +135,7 @@ export default class Feature extends Component {
     return (
       <div ss="tests">
         {this.props.feature.tests.map(
-          (test, i) => <Test key={i} test={test} group={this.props.feature.group} />
+          (test, i) => <Test key={i} test={test} versions={this._versions} />
         )}
       </div>
     );
@@ -143,12 +147,12 @@ export default class Feature extends Component {
 
     return (
       <div ss="root">
-        <div ss="head" onClick={() => this.toggle()}>
+        <div ss="head" onClick={::this.toggle}>
           <span ss="group">{feature.group.name}</span>
           <span ss="nameSupport">
             <span ss="name">{feature.name}</span>
             <span ss="support">
-              <Supports group={feature.group} supports={supports} />
+              <Supports versions={this._versions} supports={supports} />
             </span>
           </span>
         </div>
