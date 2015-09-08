@@ -11,7 +11,7 @@ import SansSel from "./sans-sel";
 let routes = (
   <Route name="index" path="/" handler={Main}>
     <DefaultRoute handler={Search}/>
-    <Route name="search" path="search/:query" handler={Search}/>
+    <Route name="search" path="/:projects?/:query?" handler={Search}/>
   </Route>
 );
 
