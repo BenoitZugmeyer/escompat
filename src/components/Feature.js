@@ -36,6 +36,7 @@ export default class Feature extends Component {
     group: {
       inherit: "cell",
 
+      lineHeight: "25px",
       backgroundColor: "#eee",
       width: "12ch",
       color: "#888",
@@ -53,6 +54,7 @@ export default class Feature extends Component {
     name: {
       inherit: "cell",
 
+      lineHeight: "25px",
       flexShrink: 1,
       minWidth: "6ch",
       paddingBottom: 0,
