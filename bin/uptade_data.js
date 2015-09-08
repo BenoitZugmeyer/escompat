@@ -251,7 +251,7 @@ let projects = [
 
   {
     name: "es5-shim",
-    short: [],
+    short: [ "es5shim" ],
     type: "shim",
     link: "https://github.com/es-shims/es5-shim",
   },
@@ -272,7 +272,7 @@ let projects = [
 
   {
     name: "es7-shim",
-    short: [],
+    short: [ "es7shim" ],
     type: "shim",
     link: "https://github.com/es-shims/es7-shim",
   },
@@ -373,7 +373,7 @@ let projects = [
 
   {
     name: "TypeScript",
-    short: [ "TypeScript + core-js" ],
+    short: [ "TypeScript + core-js", "TS" ],
     type: "transpiler",
     link: "http://www.typescriptlang.org/",
   },
