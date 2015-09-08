@@ -48,7 +48,7 @@ export default class SearchResults extends React.Component {
     if (!this.props.hasQuery) return this.renderMessage(<span>Type a query to begin<span ss="upArrow" /></span>);
     if (!this.props.results.length) return this.renderMessage("No result");
 
-    let results = this.props.results.slice(0, 20);
+    let results = this.props.results;
     return (
       <div>
         {results.map((result) => <Feature key={result.name} feature={result} projects={this.props.projects} />)}
